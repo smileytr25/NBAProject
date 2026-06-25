@@ -1,7 +1,8 @@
 import pandas as pd
 import time 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text 
 from pathlib import Path
+import requests 
 
 def get_year_draft_results(year):
     url = f"https://www.basketball-reference.com/draft/{"NBA" if year >= 1950 else "BAA"}_{year}.html"
@@ -16,6 +17,31 @@ def get_year_draft_results(year):
 
     return df
 
+def check_for_drafts_to_scrape():
+    db_path = Path("~/Personal Project/data/nba.db").expanduser()
+    engine = create_engine(f"sqlite:///{db_path}")
+    
+    with engine.connect() as conn:
+        query = text("SELECT MAX(Year) FROM draft_history")
+        last_draft_in_db = int(conn.execute(query).fetchone()[0])
+
+        start_of_new_years = next_year_to_check = last_draft_in_db + 1
+        
+        while requests.get(f"https://www.basketball-reference.com/draft/NBA_{next_year_to_check}").status_code == 200:
+            next_year_to_check += 1
+
+        return list(range(start_of_new_years, next_year_to_check))
+
+def get_drafts_not_already_existing(years):
+    db_path = Path("~/Personal Project/data/nba.db").expanduser()
+    engine = create_engine(f"sqlite:///{db_path}")
+
+    years_existing = []
+    with engine.connect() as conn:
+        years_existing += [year[0] for year in conn.execute(text("SELECT DISTINCT Year FROM draft_history")).fetchall()]
+
+    return [year for year in years if year not in years_existing]
+        
 def get_selected_years_draft_results(years, page_limit):
     rate_limiting = len(years) >= page_limit
     
@@ -65,5 +91,16 @@ def move_draft_history_to_database(draft_history):
     print("Successfully moved to database.")
 
 def draft_history_etl(years, page_limit):
-    df = get_selected_years_draft_results(years, page_limit)
-    move_draft_history_to_database(df)
+    years = get_drafts_not_already_existing(years)
+    years += check_for_drafts_to_scrape()
+    years = list(set(years))
+
+    if years:
+        print(f"Getting draft history for years: {', '.join([str(i) for i in years])}")
+        df = get_selected_years_draft_results(years, page_limit)
+        move_draft_history_to_database(df)
+    else:
+        print("All years are accounted for.")
+
+if __name__ == "__main__":
+    draft_history_etl(list(range(1947, 2027)), 19)
