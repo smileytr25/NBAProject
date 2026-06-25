@@ -56,7 +56,7 @@ def get_selected_years_draft_results(years, page_limit):
             wait_time = max(0, 60 - (current_time - start_time))
             print(f"Rate limited. Waiting {wait_time:.2f} seconds")
 
-            time.sleep(max(0, 60 - (current_time - start_time)))
+            time.sleep(wait_time)
             start_time = time.time()
             pages_visited = 0
 
@@ -65,7 +65,6 @@ def get_selected_years_draft_results(years, page_limit):
             continue 
 
         year_df = get_year_draft_results(year)
-        
         if rate_limiting:
             pages_visited += 1
 
