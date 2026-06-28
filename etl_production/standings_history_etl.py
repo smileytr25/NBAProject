@@ -350,11 +350,13 @@ def get_NBA1971_2004_year_expanded_standings(year):
         "Road_losses" : "away_losses", "Neutral_wins" : "neutral_wins", "Neutral_losses" : "neutral_losses",
         "Pre_wins" : "pre_allstar_wins", "Pre_losses" : "pre_allstar_losses", "Post_wins" : "post_allstar_wins",
         "Post_losses" : "post_allstar_losses", "E_wins" : "eastern_wins", "E_losses" : "eastern_losses", 
-        "W_wins" : "western_wins", "W_losses" : "western_losses", "≤3_wins" : "within_3pt_wins", 
-        "≤3_losses" : "within_3pt_losses", '≥10_wins' : "outside_10pt_wins", '≥10_losses' : "outside_10pt_losses", 
-        "Oct_wins" : "october_wins", "Oct_losses" : "october_losses", "Nov_wins" : "november_wins", "Nov_losses" : "november_losses", 
-        "Dec_wins" : "december_wins", "Dec_losses" : "december_losses", "Jan_wins" : "january_wins", "Jan_losses" : "january_losses",
-        "Feb_wins" : "february_wins", "Feb_losses" : "february_losses", "Mar_wins" : "march_wins", "Mar_losses" : "march_losses"
+        "W_wins" : "western_wins", "W_losses" : "western_losses", "A_wins" : "atlantic_wins", "A_losses" : "atlantic_losses",
+        "C_wins" : "central_wins", "C_losses" : "central_losses", "M_wins" : "midwest_wins", "M_losses" : "midwest_losses",
+        "P_wins" : "pacific_wins", "P_losses" : "pacific_losses", "≤3_wins" : "within_3pt_wins", "≤3_losses" : "within_3pt_losses", 
+        '≥10_wins' : "outside_10pt_wins", '≥10_losses' : "outside_10pt_losses", "Oct_wins" : "october_wins", "Oct_losses" : "october_losses", 
+        "Nov_wins" : "november_wins", "Nov_losses" : "november_losses", "Dec_wins" : "december_wins", "Dec_losses" : "december_losses", 
+        "Jan_wins" : "january_wins", "Jan_losses" : "january_losses", "Feb_wins" : "february_wins", "Feb_losses" : "february_losses", "Mar_wins" : "march_wins", 
+        "Mar_losses" : "march_losses", "Apr_wins" : "april_wins", "Apr_losses" : "april_losses"
     })
 
     conf_div_mapping = {
@@ -363,7 +365,7 @@ def get_NBA1971_2004_year_expanded_standings(year):
                 "atlantic" : [
                     1971, 1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982,
                     1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994,
-                    1995, 1996, 1997
+                    1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004
                 ],
             },
         },
@@ -372,7 +374,7 @@ def get_NBA1971_2004_year_expanded_standings(year):
                 "atlantic" : [
                     1971, 1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982,
                     1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994,
-                    1995, 1996, 1997
+                    1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004
                 ],
             },
         },
@@ -381,7 +383,7 @@ def get_NBA1971_2004_year_expanded_standings(year):
                 "atlantic" : [
                     1971, 1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982,
                     1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994,
-                    1995, 1996, 1997
+                    1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004
                 ],
             },
         },
@@ -389,17 +391,9 @@ def get_NBA1971_2004_year_expanded_standings(year):
             "eastern" : {
                 "atlantic" : [
                     1977, 1978, 1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988,
-                    1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997
+                    1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
+                    2001, 2002, 2003, 2004
                 ],
-            },
-        },
-        "Washington Bullets" : {
-            "eastern" : {
-                "central" : [1975, 1976, 1977, 1978],
-                "atlantic" : [
-                    1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990,
-                    1991, 1992, 1993, 1994, 1995, 1996, 1997
-                ]
             },
         },
         "Miami Heat" : {
@@ -407,16 +401,27 @@ def get_NBA1971_2004_year_expanded_standings(year):
                 "midwest" : [1989],
             },
             "eastern" : {
-                "atlantic" : [1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997],
+                "atlantic" : [
+                    1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001,
+                    2002, 2003, 2004
+                ],
             },
         },
         "Orlando Magic" : {
             "eastern" : {
                 "central" : [1990],
-                "atlantic" : [1992, 1993, 1994, 1995, 1996, 1997],
+                "atlantic" : [
+                    1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
+                    2004
+                ],
             },
             "western" : {
                 "midwest" : [1991],
+            },
+        },
+        "Washington Wizards" : {
+            "eastern" : {
+                "atlantic" : [1998, 1999, 2000, 2001, 2002, 2003, 2004],
             },
         },
         "Atlanta Hawks" : {
@@ -424,7 +429,7 @@ def get_NBA1971_2004_year_expanded_standings(year):
                 "central" : [
                     1971, 1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982,
                     1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994,
-                    1995, 1996, 1997
+                    1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004
                 ],
             },
         },
@@ -433,7 +438,7 @@ def get_NBA1971_2004_year_expanded_standings(year):
                 "central" : [
                     1971, 1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982,
                     1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994,
-                    1995, 1996, 1997
+                    1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004
                 ],
             },
         },
@@ -444,7 +449,8 @@ def get_NBA1971_2004_year_expanded_standings(year):
             "eastern" : {
                 "central" : [
                     1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990,
-                    1991, 1992, 1993, 1994, 1995, 1996, 1997
+                    1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002,
+                    2003, 2004
                 ],
             },
         },
@@ -455,7 +461,8 @@ def get_NBA1971_2004_year_expanded_standings(year):
             "eastern" : {
                 "central" : [
                     1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991,
-                    1992, 1993, 1994, 1995, 1996, 1997
+                    1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
+                    2004
                 ],
             },
         },
@@ -466,7 +473,7 @@ def get_NBA1971_2004_year_expanded_standings(year):
             "eastern" : {
                 "central" : [
                     1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992,
-                    1993, 1994, 1995, 1996, 1997
+                    1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004
                 ],
             },
         },
@@ -477,22 +484,18 @@ def get_NBA1971_2004_year_expanded_standings(year):
             "eastern" : {
                 "central" : [
                     1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992,
-                    1993, 1994, 1995, 1996, 1997
+                    1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004
                 ],
             },
         },
-        "Charlotte Hornets" : {
+        "New Orleans Hornets" : {
             "eastern" : {
-                "atlantic" : [1989],
-                "central" : [1991, 1992, 1993, 1994, 1995, 1996, 1997]
-            },
-            "western" : {
-                "midwest" : [1990],
+                "central" : [2003, 2004],
             },
         },
         "Toronto Raptors" : {
             "eastern" : {
-                "central" : [1996, 1997],
+                "central" : [1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004],
             },
         },
         "San Antonio Spurs" : {
@@ -502,7 +505,7 @@ def get_NBA1971_2004_year_expanded_standings(year):
             "western" : {
                 "midwest" : [
                     1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992,
-                    1993, 1994, 1995, 1996, 1997
+                    1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004
                 ],
             },
         },
@@ -511,7 +514,7 @@ def get_NBA1971_2004_year_expanded_standings(year):
                 "pacific" : [1972],
                 "midwest" : [
                     1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992,
-                    1993, 1994, 1995, 1996, 1997
+                    1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004
                 ],
             },
             "eastern" : {
@@ -522,7 +525,8 @@ def get_NBA1971_2004_year_expanded_standings(year):
             "western" : {
                 "midwest" : [
                     1977, 1978, 1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988,
-                    1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997
+                    1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
+                    2001, 2002, 2003, 2004
                 ],
             },
         },
@@ -530,7 +534,8 @@ def get_NBA1971_2004_year_expanded_standings(year):
             "western" : {
                 "midwest" : [
                     1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991,
-                    1992, 1993, 1994, 1995, 1996, 1997
+                    1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
+                    2004
                 ],
             },
         },
@@ -538,24 +543,30 @@ def get_NBA1971_2004_year_expanded_standings(year):
             "western" : {
                 "midwest" : [
                     1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992,
-                    1993, 1994, 1995, 1996, 1997
+                    1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004
                 ],
             },
         },
         "Minnesota Timberwolves" : {
             "western" : {
-                "midwest" : [1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997],
+                "midwest" : [
+                    1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001,
+                    2002, 2003, 2004
+                ],
             },
         },
-        "Vancouver Grizzlies" : {
+        "Memphis Grizzlies" : {
             "western" : {
-                "midwest" : [1996, 1997],
+                "midwest" : [2002, 2003, 2004],
             },
         },
         "Sacramento Kings" : {
             "western" : {
                 "midwest" : [1986, 1987, 1988],
-                "pacific" : [1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997],
+                "pacific" : [
+                    1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
+                    2001, 2002, 2003, 2004
+                ],
             },
         },
         "Los Angeles Lakers" : {
@@ -563,7 +574,7 @@ def get_NBA1971_2004_year_expanded_standings(year):
                 "pacific" : [
                     1971, 1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982,
                     1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994,
-                    1995, 1996, 1997
+                    1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004
                 ],
             },
         },
@@ -572,7 +583,7 @@ def get_NBA1971_2004_year_expanded_standings(year):
                 "pacific" : [
                     1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982, 1983,
                     1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995,
-                    1996, 1997
+                    1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004
                 ],
             },
         },
@@ -581,7 +592,7 @@ def get_NBA1971_2004_year_expanded_standings(year):
                 "pacific" : [
                     1971, 1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982,
                     1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994,
-                    1995, 1996, 1997
+                    1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004
                 ],
             },
         },
@@ -590,7 +601,7 @@ def get_NBA1971_2004_year_expanded_standings(year):
                 "pacific" : [
                     1971, 1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982,
                     1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994,
-                    1995, 1996, 1997
+                    1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004
                 ],
             },
         },
@@ -600,7 +611,7 @@ def get_NBA1971_2004_year_expanded_standings(year):
                 "pacific" : [
                     1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982, 1983, 1984,
                     1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996,
-                    1997
+                    1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004
                 ],
             },
         },
@@ -608,7 +619,7 @@ def get_NBA1971_2004_year_expanded_standings(year):
             "western" : {
                 "pacific" : [
                     1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996,
-                    1997
+                    1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004
                 ],
             },
         },
@@ -661,21 +672,57 @@ def get_NBA1971_2004_year_expanded_standings(year):
             "western" : {
                 "midwest" : [1976, 1977, 1978, 1979, 1980, 1981, 1982, 1983, 1984, 1985],
             },
+        },
+        "Washington Bullets" : {
+            "eastern" : {
+                "central" : [1975, 1976, 1977, 1978],
+                "atlantic" : [
+                    1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990,
+                    1991, 1992, 1993, 1994, 1995, 1996, 1997
+                ]
+            },
+        },
+        "Vancouver Grizzlies" : {
+            "western" : {
+                "midwest" : [1996, 1997, 1998, 1999, 2000, 2001],
+            },
+        },
+        "Charlotte Hornets" : {
+            "eastern" : {
+                "atlantic" : [1989],
+                "central" : [
+                    1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002
+                ],
+            },
+            "western" : {
+                "midwest" : [1990],
+            },
         }
     }
 
     for team in standings_df.team.unique():
-        division_hist = division_mapping[team]
+        division_hist = conf_div_mapping[team]
 
-        for division, years in division_hist.items():
-            if year in years:
-                standings_df.loc[standings_df.team.eq(team), "division"] = division
+        for conference, divisions in division_hist.items():
+            for division, years in divisions.items():
+                if year in years:
+                    standings_df.loc[standings_df.team.eq(team), "conference"] = conference
+                    standings_df.loc[standings_df.team.eq(team), "division"] = division
 
     standings_df["win_percentage"] = standings_df["wins"] / (standings_df["wins"] + standings_df["losses"])
     standings_df["home_win_percentage"] = standings_df["home_wins"] / (standings_df["home_wins"] + standings_df["home_losses"])
     standings_df["away_win_percentage"] = standings_df["away_wins"] / (standings_df["away_wins"] + standings_df["away_losses"])
 
     standings_df["year"] = year 
+
+    for month in ["october", "november", "december", "january", "february", "march", "april"]:
+        if f"{month}_wins" not in standings_df.columns:
+            standings_df[f"{month}_wins"] = 0
+            standings_df[f"{month}_losses"] = 0
+
+    if "neutral_wins" not in standings_df.columns:
+        standings_df["neutral_wins"] = 0
+        standings_df["neutral_losses"] = 0
 
     return standings_df
 
@@ -724,34 +771,48 @@ def get_NBA_after_2004_year_expanded_standings(year):
         "May_wins" : "may_wins", "May_losses" : "may_losses"
     })
 
-    east_teams = [
-        "Detroit Pistons", "Boston Celtics", "New York Knicks", "Cleveland Cavaliers", "Atlanta Hawks", "Toronto Raptors",
-        "Orlando Magic", "Philadelphia 76ers", "Charlotte Hornets", "Miami Heat", "Milwaukee Bucks", "Chicago Bulls", 
-        "Brooklyn Nets", "Indiana Pacers", "Washington Wizards"
-    ]
+    conf_div_mapping = {
+        "eastern" : {
+            "atlantic" : ["Boston Celtics", "Philadelphia", "New Jersey Nets", "Toronto Raptors", "New York Knicks", "Brooklyn Nets"],
+            "central" : ["Detroit Pistons", "Chicago Bulls", "Indiana Pacers", "Cleveland Cavaliers", "Milwaukee Bucks"],
+            "southeast" : [
+                "Miami Heat", "Washington Wizards", "Orlando Magic", "Charlotte Bobcats", "Atlanta Hawks", "Charlotte Hornets"
+            ],
+        },
+        "western" : {
+            "northwest" : [
+                "Seattle SuperSonics", "Denver Nuggets", "Minnesota Timberwolves", "Portland Trail Blazers", "Utah Jazz",
+                "Oklahoma City Thunder"
+            ],
+            "pacific" : ["Phoenix Suns", "Sacramento Kings", "Los Angeles Clippers", "Los Angeles Clippers", "Golden State Warriors"],
+            "southwest" : [
+                "San Antonio Spurs", "Dallas Mavericks", "Houston Rockets", "Memphis Grizzlies", "New Orleans Hornets", 
+                "New Orleans/Oklahoma City Hornets", "New Orleans Pelicans"
+            ],
+        }
+    }
 
-    standings_df.loc[standings_df.team.isin(east_teams), "conference"] = "east"
-    standings_df.loc[~standings_df.team.isin(east_teams), "conference"] = "west"
-
-    atlantic_teams = ["Boston Celtics", "New York Knicks", "Brooklyn Nets", "Toronto Raptors", "Philadelphia 76ers"]
-    central_teams = ["Detroit Pistons", "Milwaukee Bucks", "Chicago Bulls", "Indiana Pacers", "Cleveland Cavaliers"]
-    southeast_teams = ["Miami Heat", "Orlando Magic", "Charlotte Hornets", "Atlanta Hawks", "Washington Wizards"]
-
-    pacific_teams = ["Golden State Warriors", "Los Angeles Lakers", "Los Angeles Clippers", "Sacramento Kings", "Phoenix Suns"]
-    northwest_teams = ["Portland Trail Blazers", "Denver Nuggets", "Oklahoma City Thunder", "Utah Jazz", "Minnesota Timberwolves"]
-    southwest_teams = ["Memphis Grizzlies", "Houston Rockets", "Dallas Mavericks", "New Orleans Pelicans", "San Antonio Spurs"]
-
-    for division, name in zip(
-        [atlantic_teams, central_teams, southeast_teams, pacific_teams, northwest_teams, southwest_teams],
-        ["atlantic", "central", "southeast", "pacific", "northwest", "southwest"]
-    ):
-        standings_df.loc[standings_df.team.isin(division), "division"] = name
+    for team in standings_df.team.unique():
+        for conference, divisions in conf_div_mapping.items():
+            for division, teams in divisions.items():
+                if team in teams:
+                    standings_df.loc[standings_df.team.eq(team), "conference"] = conference
+                    standings_df.loc[standings_df.team.eq(team), "division"] = division
 
     standings_df["win_percentage"] = standings_df["wins"] / (standings_df["wins"] + standings_df["losses"])
     standings_df["home_win_percentage"] = standings_df["home_wins"] / (standings_df["home_wins"] + standings_df["home_losses"])
     standings_df["away_win_percentage"] = standings_df["away_wins"] / (standings_df["away_wins"] + standings_df["away_losses"])
 
     standings_df["year"] = year 
+
+    for month in ["october", "november", "december", "january", "february", "march", "april", "may"]:
+        if f"{month}_wins" not in standings_df.columns:
+            standings_df[f"{month}_wins"] = 0
+            standings_df[f"{month}_losses"] = 0
+
+    if "neutral_wins" not in standings_df.columns:
+        standings_df["neutral_wins"] = 0
+        standings_df["neutral_losses"] = 0
 
     return standings_df 
 
@@ -905,7 +966,17 @@ def get_year_standings(year, page_limit, pages_visited=0, start_time=None):
         pages_visited = 0
         start_time = time.time()
     
-    expanded_standings = get_year_expanded_standings(year)
+    expanded_standings = None
+    if year < 1950:
+        expanded_standings = get_BAA_year_expanded_standings(year)
+    elif year == 1950:
+        expanded_standings = get_NBA1950_year_expanded_standings(year)
+    elif year <= 1970:
+        expanded_standings = get_NBA1951_1970_year_expanded_standings(year)
+    elif year <= 2004:
+        expanded_standings = get_NBA1971_2004_year_expanded_standings(year)
+    else:
+        expanded_standings = get_NBA_after_2004_year_expanded_standings(year)
 
     if pages_visited == page_limit:
         wait_time = max(0, 60 - (time.time() - start_time))
@@ -917,7 +988,8 @@ def get_year_standings(year, page_limit, pages_visited=0, start_time=None):
 
     team_vs_team, pivoted_team_vs_team = get_year_team_vs_team(year)
 
-    expanded_standings = get_conference_rank(expanded_standings, team_vs_team)
+    if year >= 1971:
+        expanded_standings = get_conference_rank(expanded_standings, team_vs_team)
 
     return expanded_standings, pivoted_team_vs_team, pages_visited, start_time 
 
@@ -938,29 +1010,38 @@ def move_standings_to_database(expanded_standings, team_vs_team):
     db_path = Path("~/Personal Project/data/nba.db").expanduser()
     engine = create_engine(f"sqlite:///{db_path}")
 
-    modern_day_standings = expanded_standings[expanded_standings.year.ge(2004)]
-    middle_age_standings = expanded_standings[expanded_standings.year.ge(1970)]
-    early_day_standings = expanded_standings[expanded_standings.year.lt(1970)]
+    after_2004_standings = expanded_standings[expanded_standings.year.ge(2005)]
+    after_1970_standings = expanded_standings[expanded_standings.year.ge(1970) & expanded_standings.year.lt(2005)]
+    equal_1950_standings = expanded_standings[expanded_standings.year.eq(1950)]
+    before_1950_standings = expanded_standings[expanded_standings.year.lt(1950)]
 
-    if modern_day_standings:
-        modern_day_standings.to_sql(
-            "modern_expanded_standings_history",
+    if after_2004_standings:
+        after_2004_standings.to_sql(
+            "standings_history_after_2004",
             engine,
             if_exists="append",
             index=False
         )
 
-    if middle_age_standings:
-        middle_age_standings.to_sql(
-            "middle_age_expanded_standings_history",
+    if after_1970_standings:
+        after_1970_standings.to_sql(
+            "standings_history_after_1970_to_2004",
             engine,
             if_exists="append",
             index=False
         )
 
-    if early_day_standings:
-        early_day_standings.to_sql(
-            "early_day_expanded_standings_history",
+    if equal_1950_standings:
+        equal_1950_standings.to_sql(
+            "standings_history_1950",
+            engine,
+            if_exists="append",
+            index=False
+        )
+
+    if before_1950_standings:
+        before_1950_standings.to_sql(
+            "standings_history_before_1950",
             engine,
             if_exists="append",
             index=False
