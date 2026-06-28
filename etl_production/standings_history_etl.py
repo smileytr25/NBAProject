@@ -18,7 +18,7 @@ def get_BAA_year_expanded_standings(year):
 
     table_comment = wrapper.find(
         string=lambda text: isinstance(text, Comment)
-        and 'id = "expanded_standings"' in text
+        and 'id="expanded_standings"' in text
     )
 
     table_soup = BeautifulSoup(table_comment, "html.parser")
@@ -30,9 +30,9 @@ def get_BAA_year_expanded_standings(year):
     for col in standings_df.columns:
         if col in ["Rk", "Team"]:
             continue 
-
-        standings_df[f"{col}_wins"] = standings_df[col].str.split("-").str[0].astype("int")
-        standings_df[f"{col}_losses"] = standings_df[col].str.split("-").str[1].astype("int")
+        
+        standings_df[f"{col}_wins"] = standings_df[col].fillna("0-0").str.split("-").str[0].astype("int")
+        standings_df[f"{col}_losses"] = standings_df[col].fillna("0-0").str.split("-").str[1].astype("int")
         standings_df = standings_df.drop(columns=[col])
 
     standings_df = standings_df.rename(columns = {
@@ -116,8 +116,8 @@ def get_NBA1950_year_expanded_standings(year):
         if col in ["Rk", "Team"]:
             continue 
             
-        standings_df["f{col}_wins"] = standings_df[col].str.split("-").str[0].astype("int")
-        standings_df["f{col}_losses"] = standings_df[col].str.split("-").str[1].astype("int")
+        standings_df[f"{col}_wins"] = standings_df[col].fillna("0-0").str.split("-").str[0].astype("int")
+        standings_df[f"{col}_losses"] = standings_df[col].fillna("0-0").str.split("-").str[1].astype("int")
         standings_df = standings_df.drop(columns=[col])
 
     standings_df = standings_df.rename(columns = {
@@ -164,6 +164,9 @@ def get_NBA1951_1970_year_expanded_standings(year):
     url = f"https://www.basketball-reference.com/leagues/NBA_{year}_standings.html"
     r = requests.get(url)
 
+    if r.status_code != 200:
+        raise ValueError("Got rate limited.")
+    
     soup = BeautifulSoup(r.content, "html.parser")
     wrapper = soup.find("div", id="all_expanded_standings")
 
@@ -182,8 +185,8 @@ def get_NBA1951_1970_year_expanded_standings(year):
         if col in ["Rk", "Team"]:
             continue 
             
-        standings_df["f{col}_wins"] = standings_df[col].str.split("-").str[0].astype("int")
-        standings_df["f{col}_losses"] = standings_df[col].str.split("-").str[1].astype("int")
+        standings_df[f"{col}_wins"] = standings_df[col].fillna("0-0").str.split("-").str[0].astype("int")
+        standings_df[f"{col}_losses"] = standings_df[col].fillna("0-0").str.split("-").str[1].astype("int")
         standings_df = standings_df.drop(columns=[col])
 
     standings_df = standings_df.rename(columns = {
@@ -340,8 +343,8 @@ def get_NBA1971_2004_year_expanded_standings(year):
         if col in ["Rk", "Team"]:
             continue 
             
-        standings_df["f{col}_wins"] = standings_df[col].str.split("-").str[0].astype("int")
-        standings_df["f{col}_losses"] = standings_df[col].str.split("-").str[1].astype("int")
+        standings_df[f"{col}_wins"] = standings_df[col].fillna("0-0").str.split("-").str[0].astype("int")
+        standings_df[f"{col}_losses"] = standings_df[col].fillna("0-0").str.split("-").str[1].astype("int")
         standings_df = standings_df.drop(columns=[col])
 
     standings_df = standings_df.rename(columns = {
@@ -748,8 +751,8 @@ def get_NBA_after_2004_year_expanded_standings(year):
         if col in ["Rk", "Team"]:
             continue 
 
-        standings_df["f{col}_wins"] = standings_df[col].str.split("-").str[0].astype("int")
-        standings_df["f{col}_losses"] = standings_df[col].str.split("-").str[1].astype("int")
+        standings_df[f"{col}_wins"] = standings_df[col].fillna("0-0").str.split("-").str[0].astype("int")
+        standings_df[f"{col}_losses"] = standings_df[col].fillna("0-0").str.split("-").str[1].astype("int")
         standings_df = standings_df.drop(columns=[col])
 
     standings_df = standings_df.rename(columns = {
@@ -817,7 +820,7 @@ def get_NBA_after_2004_year_expanded_standings(year):
     return standings_df 
 
 def get_year_team_vs_team(year):
-    url = f"https://www.basketball-reference.com/leagues/NBA_{year}_standings.html"
+    url = f"https://www.basketball-reference.com/leagues/{"BAA" if year < 1950 else "NBA"}_{year}_standings.html"
     r = requests.get(url)
 
     soup = BeautifulSoup(r.content, "html.parser")
@@ -1004,6 +1007,8 @@ def get_selected_years_standings(years, page_limit):
         exp_standings = pd.concat([exp_standings, expanded_standings], axis=0)
         tm_vs_tm = pd.concat([tm_vs_tm, team_vs_team], axis=0)
 
+        print(f"Standings history added for {year}")
+
     return exp_standings, tm_vs_tm
 
 def move_standings_to_database(expanded_standings, team_vs_team):
@@ -1055,4 +1060,4 @@ def move_standings_to_database(expanded_standings, team_vs_team):
     )
 
 if __name__ == "__main__": 
-    get_year_team_vs_team(2026)
+    get_selected_years_standings(list(range(1947, 2027)), page_limit=15)
