@@ -168,6 +168,9 @@ def get_schedules_not_already_existing(years):
     return [year for year in years if year not in years_existing]
 
 def game_schedule_history_etl(years, page_limit):
+    years = get_schedules_not_already_existing(years)
+    years = years + check_for_schedules_to_scrape(page_limit=15)
+
     if years:
         print(f"Getting game schedule history for years: {', '.join([str(i) for i in years])}")
         df = get_selected_years_game_schedule(years, page_limit)

@@ -359,7 +359,7 @@ def get_NBA1971_2004_year_expanded_standings(year):
         '≥10_wins' : "outside_10pt_wins", '≥10_losses' : "outside_10pt_losses", "Oct_wins" : "october_wins", "Oct_losses" : "october_losses", 
         "Nov_wins" : "november_wins", "Nov_losses" : "november_losses", "Dec_wins" : "december_wins", "Dec_losses" : "december_losses", 
         "Jan_wins" : "january_wins", "Jan_losses" : "january_losses", "Feb_wins" : "february_wins", "Feb_losses" : "february_losses", "Mar_wins" : "march_wins", 
-        "Mar_losses" : "march_losses", "Apr_wins" : "april_wins", "Apr_losses" : "april_losses"
+        "Mar_losses" : "march_losses", "Apr_wins" : "april_wins", "Apr_losses" : "april_losses", "May_wins" : "may_wins", "May_losses" : "may_losses"
     })
 
     conf_div_mapping = {
@@ -392,10 +392,15 @@ def get_NBA1971_2004_year_expanded_standings(year):
         },
         "New York Nets" : {
             "eastern" : {
+                "atlantic" : [1977],
+            },
+        },
+        "New Jersey Nets" : {
+            "eastern" : {
                 "atlantic" : [
-                    1977, 1978, 1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988,
-                    1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
-                    2001, 2002, 2003, 2004
+                    1978, 1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 
+                    1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 
+                    2002, 2003, 2004
                 ],
             },
         },
@@ -718,7 +723,7 @@ def get_NBA1971_2004_year_expanded_standings(year):
 
     standings_df["year"] = year 
 
-    for month in ["october", "november", "december", "january", "february", "march", "april"]:
+    for month in ["october", "november", "december", "january", "february", "march", "april", "may"]:
         if f"{month}_wins" not in standings_df.columns:
             standings_df[f"{month}_wins"] = 0
             standings_df[f"{month}_losses"] = 0
@@ -758,8 +763,8 @@ def get_NBA_after_2004_year_expanded_standings(year):
     standings_df = standings_df.rename(columns = {
         "Rk" : "rank", "Team" : "team", "Overall_wins" : "wins", "Overall_losses" : "losses",
         "Home_wins" : "home_wins", "Home_losses" : "home_losses", "Road_wins" : "away_wins",
-        "Road_losses" : "away_losses", "E_wins" : "east_wins", "E_losses" : "east_losses",
-        "W_wins" : "west_wins", "W_losses" : "west_losses", "A_wins" : "atlantic_wins",
+        "Road_losses" : "away_losses", "E_wins" : "eastern_wins", "E_losses" : "eastern_losses",
+        "W_wins" : "western_wins", "W_losses" : "western_losses", "A_wins" : "atlantic_wins",
         "A_losses" : "atlantic_losses", "C_wins" : "central_wins", "C_losses" : "central_losses",
         "SE_wins" : "southeast_wins", "SE_losses" : "southeast_losses", "NW_wins" : "northwest_wins",
         "NW_losses" : "northwest_losses", "P_wins" : "pacific_wins", "P_losses" : "pacific_losses",
@@ -771,12 +776,13 @@ def get_NBA_after_2004_year_expanded_standings(year):
         "Dec_losses" : "december_losses", "Jan_wins" : "january_wins", "Jan_losses" : "january_losses",
         "Feb_wins" : "february_wins", "Feb_losses" : "february_losses", "Mar_wins" : "march_wins",
         "Mar_losses" : "march_losses", "Apr_wins" : "april_wins", "Apr_losses" : "april_losses",
-        "May_wins" : "may_wins", "May_losses" : "may_losses"
+        "May_wins" : "may_wins", "May_losses" : "may_losses", "Jun_wins" : "june_wins", "Jun_losses" : "june_losses",
+        "Jul_wins" : "july_wins", "Jul_losses" : "july_losses", "Aug_wins" : "august_wins", "Aug_losses" : "august_losses"
     })
 
     conf_div_mapping = {
         "eastern" : {
-            "atlantic" : ["Boston Celtics", "Philadelphia", "New Jersey Nets", "Toronto Raptors", "New York Knicks", "Brooklyn Nets"],
+            "atlantic" : ["Boston Celtics", "Philadelphia 76ers", "New Jersey Nets", "Toronto Raptors", "New York Knicks", "Brooklyn Nets"],
             "central" : ["Detroit Pistons", "Chicago Bulls", "Indiana Pacers", "Cleveland Cavaliers", "Milwaukee Bucks"],
             "southeast" : [
                 "Miami Heat", "Washington Wizards", "Orlando Magic", "Charlotte Bobcats", "Atlanta Hawks", "Charlotte Hornets"
@@ -787,7 +793,7 @@ def get_NBA_after_2004_year_expanded_standings(year):
                 "Seattle SuperSonics", "Denver Nuggets", "Minnesota Timberwolves", "Portland Trail Blazers", "Utah Jazz",
                 "Oklahoma City Thunder"
             ],
-            "pacific" : ["Phoenix Suns", "Sacramento Kings", "Los Angeles Clippers", "Los Angeles Clippers", "Golden State Warriors"],
+            "pacific" : ["Phoenix Suns", "Sacramento Kings", "Los Angeles Clippers", "Los Angeles Lakers", "Golden State Warriors"],
             "southwest" : [
                 "San Antonio Spurs", "Dallas Mavericks", "Houston Rockets", "Memphis Grizzlies", "New Orleans Hornets", 
                 "New Orleans/Oklahoma City Hornets", "New Orleans Pelicans"
@@ -808,7 +814,7 @@ def get_NBA_after_2004_year_expanded_standings(year):
 
     standings_df["year"] = year 
 
-    for month in ["october", "november", "december", "january", "february", "march", "april", "may"]:
+    for month in ["october", "november", "december", "january", "february", "march", "april", "may", "june", "july", "august"]:
         if f"{month}_wins" not in standings_df.columns:
             standings_df[f"{month}_wins"] = 0
             standings_df[f"{month}_losses"] = 0
@@ -857,6 +863,280 @@ def get_year_team_vs_team(year):
     
     return standings_df, pivoted
 
+def get_division_winners(conference_df):
+    df = conference_df.copy()
+
+    df["division_wp"] = df.apply(
+        lambda row: row[f"{row['division']}_wins"]
+        / (
+            row[f"{row['division']}_wins"]
+            + row[f"{row['division']}_losses"]
+        ),
+        axis=1
+    )
+
+    df = df.sort_values(["win_percentage", "division_wp"], ascending=False)
+    
+    df["division_rank"] = df.groupby("division").cumcount() + 1
+
+    return df[df.division_rank.eq(1)].team.unique().tolist()
+
+def break_ties(n_ties, conference_df, tvt, ties_history, wp, conference_rank, conference, conference_rk, tie_teams=None):
+    tie_rows = conference_df[conference_df.win_percentage.eq(wp)]
+    
+    if not tie_teams: 
+        tie_teams = tie_rows.team.unique().tolist()
+    else:
+        tie_rows = tie_rows[tie_rows.team.isin(tie_teams)]
+
+    if tie_teams in ties_history:
+        return "resolved"
+    elif n_ties == 1:
+        ties_history.append(tie_teams)
+
+        team0_h2h_wins = int(tvt.loc[tvt.Team.eq(tie_teams[0]), tie_teams[1]].iloc[0].split("-")[0])
+        team1_h2h_wins = int(tvt.loc[tvt.Team.eq(tie_teams[1]), tie_teams[0]].iloc[0].split("-")[0])
+
+        if team0_h2h_wins > team1_h2h_wins:
+            conference_rank[conference][tie_teams[0]] = conference_rk 
+            conference_rank[conference][tie_teams[1]] = conference_rk + 1
+            conference_rk += 2
+
+        elif team1_h2h_wins > team0_h2h_wins:
+            conference_rank[conference][tie_teams[1]] = conference_rk 
+            conference_rank[conference][tie_teams[0]] = conference_rk + 1
+            conference_rk += 2
+
+        else:
+            division_winners = get_division_winners(conference_df)
+
+            if tie_teams[0] in division_winners and tie_teams[1] not in division_winners:
+                conference_rank[conference][tie_teams[0]] = conference_rk 
+                conference_rank[conference][tie_teams[1]] = conference_rk + 1
+                conference_rk += 2
+            
+            elif tie_teams[1] in division_winners and tie_teams[0] not in division_winners:
+                conference_rank[conference][tie_teams[1]] = conference_rk 
+                conference_rank[conference][tie_teams[0]] = conference_rk + 1
+                conference_rk += 2
+            
+            else:
+                team0_division = tie_rows[tie_rows.team.eq(tie_teams[0])].division.iloc[0]
+                team1_division = tie_rows[tie_rows.team.eq(tie_teams[1])].division.iloc[0]
+
+                team0_div_wp = int(tie_rows.loc[tie_rows.team.eq(tie_teams[0]), f"{team0_division}_wins"].iloc[0]) / \
+                    (
+                        int(tie_rows.loc[tie_rows.team.eq(tie_teams[0]), f"{team0_division}_wins"].iloc[0]) + 
+                        int(tie_rows.loc[tie_rows.team.eq(tie_teams[0]), f"{team0_division}_losses"].iloc[0])
+                    )
+
+                team1_div_wp = int(tie_rows.loc[tie_rows.team.eq(tie_teams[1]), f"{team1_division}_wins"].iloc[0]) / \
+                    (
+                        int(tie_rows.loc[tie_rows.team.eq(tie_teams[1]), f"{team1_division}_wins"].iloc[0]) + 
+                        int(tie_rows.loc[tie_rows.team.eq(tie_teams[1]), f"{team1_division}_losses"].iloc[0])
+                    )
+                
+                if team0_div_wp > team1_div_wp:
+                    conference_rank[conference][tie_teams[0]] = conference_rk 
+                    conference_rank[conference][tie_teams[1]] = conference_rk + 1
+                    conference_rk += 2
+
+                elif team1_div_wp > team0_div_wp:
+                    conference_rank[conference][tie_teams[1]] = conference_rk 
+                    conference_rank[conference][tie_teams[0]] = conference_rk + 1
+                    conference_rk += 2
+
+                else:
+                    team0_conference = tie_rows[tie_rows.team.eq(tie_teams[0])].conference.iloc[0]
+                    team1_conference = tie_rows[tie_rows.team.eq(tie_teams[1])].conference.iloc[0]
+
+                    team0_conf_wp = int(tie_rows.loc[tie_rows.team.eq(tie_teams[0]), f"{team0_conference}_wins"].iloc[0]) / \
+                        (
+                            int(tie_rows.loc[tie_rows.team.eq(tie_teams[0]), f"{team0_conference}_wins"].iloc[0]) + 
+                            int(tie_rows.loc[tie_rows.team.eq(tie_teams[0]), f"{team0_conference}_losses"].iloc[0])
+                        )
+
+                    team1_conf_wp = int(tie_rows.loc[tie_rows.team.eq(tie_teams[1]), f"{team1_conference}_wins"].iloc[0]) / \
+                        (
+                            int(tie_rows.loc[tie_rows.team.eq(tie_teams[1]), f"{team1_conference}_wins"].iloc[0]) + 
+                            int(tie_rows.loc[tie_rows.team.eq(tie_teams[1]), f"{team1_conference}_losses"].iloc[0])
+                        )
+                    
+                    if team0_conf_wp > team1_conf_wp:
+                        conference_rank[conference][tie_teams[0]] = conference_rk 
+                        conference_rank[conference][tie_teams[1]] = conference_rk + 1
+                        conference_rk += 2
+
+                    elif team1_conf_wp > team0_conf_wp:
+                        conference_rank[conference][tie_teams[1]] = conference_rk 
+                        conference_rank[conference][tie_teams[0]] = conference_rk + 1
+                        conference_rk += 2
+
+        return ties_history, conference_rank, conference_rk
+    else: 
+        division_winners = get_division_winners(conference_df)
+        
+        if tie_teams[0] in division_winners and tie_teams[1] not in division_winners and tie_teams[2] not in division_winners:
+            conference_rank[conference][tie_teams[0]] = conference_rk 
+            conference_rk += 1
+            
+            ties_history.append(tie_teams.copy()) 
+            team_to_remove = tie_teams[0]
+            tie_teams.remove(team_to_remove)
+
+            ties_history, conference_rank, conference_rk = break_ties(n_ties - 1, conference_df, tvt, ties_history, wp, conference_rank, conference, conference_rk, tie_teams=tie_teams)
+
+            return ties_history, conference_rank, conference_rk
+        
+        elif tie_teams[1] in division_winners and tie_teams[0] not in division_winners and tie_teams[2] not in division_winners:
+            conference_rank[conference][tie_teams[1]] = conference_rk 
+            conference_rk += 1
+            
+            ties_history.append(tie_teams.copy())
+            team_to_remove = tie_teams[1]
+            tie_teams.remove(team_to_remove)
+
+            ties_history, conference_rank, conference_rk = break_ties(n_ties - 1, conference_df, tvt, ties_history, wp, conference_rank, conference, conference_rk, tie_teams=tie_teams)
+
+            return ties_history, conference_rank, conference_rk
+
+        elif tie_teams[2] in division_winners and tie_teams[0] not in division_winners and tie_teams[1] not in division_winners:
+            conference_rank[conference][tie_teams[2]] = conference_rk 
+            conference_rk += 1
+            
+            ties_history.append(tie_teams.copy())
+            team_to_remove = tie_teams[2]
+            tie_teams.remove(team_to_remove)
+
+            ties_history, conference_rank, conference_rk = break_ties(n_ties - 1, conference_df, tvt, ties_history, wp, conference_rank, conference, conference_rk, tie_teams=tie_teams)
+
+            return ties_history, conference_rank, conference_rk
+        
+        elif len([tm for tm in tie_teams if tm in division_winners]) == 2:
+            non_division_winner = next(
+                tm for tm in tie_teams
+                if tm not in division_winners
+            )
+
+            conference_rank[conference][non_division_winner] = conference_rk + 2
+
+            ties_history.append(tie_teams.copy())
+
+            tie_teams.remove(non_division_winner)
+
+            ties_history, conference_rank, conference_rk = break_ties(1, conference_df, tvt, ties_history, wp, conference_rank, conference, conference_rk, tie_teams)
+
+            conference_rk += 1
+
+            return ties_history, conference_rank, conference_rk
+        
+        else:
+            h2h_wins_dict = {"team" : [], "h2h_wins" : []}
+            for tm in tie_teams:
+                h2h_wins = 0
+                for other_team in [team for team in tie_teams if team != tm]:
+                    h2h_wins += int(tvt.loc[tvt.Team.eq(tm), other_team].iloc[0].split("-")[0])
+                h2h_wins_dict["team"].append(tm)
+                h2h_wins_dict["h2h_wins"].append(h2h_wins)
+            
+            h2h = pd.DataFrame(data=h2h_wins_dict)
+            max_wins = h2h.h2h_wins.max()
+            n_teams = len(h2h[h2h.h2h_wins.eq(max_wins)])
+
+            winning_team = h2h[h2h.h2h_wins.eq(max_wins)]["team"].iloc[0]
+
+            if n_teams == 1:
+                conference_rank[conference][winning_team] = conference_rk
+                conference_rk += 1
+
+                ties_history.append(tie_teams.copy())
+                tie_teams.remove(winning_team)
+
+                ties_history, conference_rank, conference_rk = break_ties(n_ties - 1, conference_df, tvt, ties_history, wp, conference_rank, conference, conference_rk, tie_teams=tie_teams)
+
+                return ties_history, conference_rank, conference_rk 
+            else:
+                if tie_rows.division.nunique() == 1:
+                    div_wp_dict = {"team" : [], "div_wp" : []}
+                    for tm in tie_teams:
+                        div_wins = int(tie_rows[tie_rows.team.eq(tm)][f"{tie_rows[tie_rows.team.eq(tm)].division.iloc[0]}_wins"].iloc[0])
+                        div_total = div_wins + int(tie_rows[tie_rows.team.eq(tm)][f"{tie_rows[tie_rows.team.eq(tm)].division.iloc[0]}_losses"].iloc[0])
+                        div_wp_dict["team"].append(tm)
+                        div_wp_dict["div_wp"].append(div_wins / div_total)
+
+                    div_wp = pd.DataFrame(data=div_wp_dict)
+                    max_wp = div_wp.div_wp.max()
+                    n_teams = len(div_wp[div_wp.div_wp.eq(max_wp)])
+
+                    winning_team = div_wp[div_wp.div_wp.eq(max_wp)]["team"].iloc[0]
+
+                    if n_teams == 1:
+                        conference_rank[conference][winning_team] = conference_rk
+                        conference_rk += 1
+
+                        ties_history.append(tie_teams.copy())
+                        tie_teams.remove(winning_team)
+
+                        ties_history, conference_rank, conference_rk = break_ties(n_ties - 1, conference_df, tvt, ties_history, wp, conference_rank, conference, conference_rk, tie_teams=tie_teams)
+
+                        return ties_history, conference_rank, conference_rk
+                    
+                    else:
+                        conf_wp_dict = {"team" : [], "conf_wp" : []}
+                        for tm in tie_teams:
+                            conf_wins = int(tie_rows[tie_rows.team.eq(tm)][f"{tie_rows[tie_rows.team.eq(tm)].conference.iloc[0]}_wins"].iloc[0])
+                            conf_total = conf_wins + int(tie_rows[tie_rows.team.eq(tm)][f"{tie_rows[tie_rows.team.eq(tm)].conference.iloc[0]}_losses"].iloc[0])
+                            conf_wp_dict["team"].append(tm)
+                            conf_wp_dict["conf_wp"].append(conf_wins / conf_total)
+
+                        conf_wp = pd.DataFrame(data=conf_wp_dict)
+                        max_wp = conf_wp.conf_wp.max()
+                        n_teams = len(conf_wp[conf_wp.conf_wp.eq(max_wp)])
+
+                        winning_team = conf_wp[conf_wp.conf_wp.eq(max_wp)]["team"].iloc[0]
+
+                        if n_teams == 1:
+                            conference_rank[conference][winning_team] = conference_rk
+                            conference_rk += 1
+
+                            ties_history.append(tie_teams.copy())
+                            tie_teams.remove(winning_team)
+
+                            ties_history, conference_rank, conference_rk = break_ties(n_ties - 1, conference_df, tvt, ties_history, wp, conference_rank, conference, conference_rk, tie_teams=tie_teams)
+
+                            return ties_history, conference_rank, conference_rk
+                        
+                        else:
+                            raise ValueError("MAYDAY MAYDAY!!!")
+                        
+                else:
+                    conf_wp_dict = {"team" : [], "conf_wp" : []}
+                    for tm in tie_teams:
+                        conf_wins = int(tie_rows[tie_rows.team.eq(tm)][f"{tie_rows[tie_rows.team.eq(tm)].conference.iloc[0]}_wins"].iloc[0])
+                        conf_total = conf_wins + int(tie_rows[tie_rows.team.eq(tm)][f"{tie_rows[tie_rows.team.eq(tm)].conference.iloc[0]}_losses"].iloc[0])
+                        conf_wp_dict["team"].append(tm)
+                        conf_wp_dict["conf_wp"].append(conf_wins / conf_total)
+
+                    conf_wp = pd.DataFrame(data=conf_wp_dict)
+                    max_wp = conf_wp.conf_wp.max()
+                    n_teams = len(conf_wp[conf_wp.conf_wp.eq(max_wp)])
+
+                    winning_team = conf_wp[conf_wp.conf_wp.eq(max_wp)]["team"].iloc[0]
+
+                    if n_teams == 1:
+                        conference_rank[conference][winning_team] = conference_rk
+                        conference_rk += 1
+
+                        ties_history.append(tie_teams.copy())
+                        tie_teams.remove(winning_team)
+
+                        ties_history, conference_rank, conference_rk = break_ties(n_ties - 1, conference_df, tvt, ties_history, wp, conference_rank, conference, conference_rk, tie_teams=tie_teams)
+
+                        return ties_history, conference_rank, conference_rk
+                        
+                    else:
+                        raise ValueError("MAYDAY MAYDAY!!!")
+                        
 def get_conference_rank(expanded_standings, team_vs_team):
     df = expanded_standings.copy() 
     tvt = team_vs_team.copy() 
@@ -864,10 +1144,7 @@ def get_conference_rank(expanded_standings, team_vs_team):
     conference_rk = 1
 
     ties_history = []
-    conference_rank = {
-        "east" : {},
-        "west" : {}
-    }
+    conference_rank = {conf : {} for conf in df.conference.unique()}
 
     for conference in df.conference.unique():
         conference_df = df[df.conference.eq(conference)].sort_values("win_percentage", ascending=False)
@@ -883,71 +1160,12 @@ def get_conference_rank(expanded_standings, team_vs_team):
                 conference_rank[conference][row["team"]] = conference_rk
                 conference_rk += 1
             
-            elif n_ties == 1:
-                tie_rows = conference_df[conference_df.win_percentage.eq(wp)]
-                tie_teams = tie_rows.team.to_list()
-
-                if tie_teams in ties_history:
+            else:
+                result = break_ties(n_ties, conference_df, tvt, ties_history, wp, conference_rank, conference, conference_rk)
+                if result == "resolved":
                     continue 
-                
                 else:
-                    ties_history.append(tie_teams)
-
-                    team0_h2h_wins = int(tvt.loc[tvt.Team.eq(tie_teams[0]), tie_teams[1]].iloc[0].split("-")[0])
-                    team1_h2h_wins = int(tvt.loc[tvt.Team.eq(tie_teams[1]), tie_teams[0]].iloc[0].split("-")[0])
-
-                    if team0_h2h_wins > team1_h2h_wins:
-                        conference_rank[conference][tie_teams[0]] = conference_rk 
-                        conference_rank[conference][tie_teams[1]] = conference_rk + 1
-                        conference_rk += 2
-
-                    elif team1_h2h_wins > team0_h2h_wins:
-                        conference_rank[conference][tie_teams[1]] = conference_rk 
-                        conference_rank[conference][tie_teams[0]] = conference_rk + 1
-                        conference_rk += 2
-
-                    else:
-                        division_ranks = conference_df.copy() 
-                        division_ranks["division_rank"] = conference_df.groupby("division")["win_percentage"].rank(ascending=False, method="dense")
-
-                        division_winners = division_ranks[division_ranks.division_rank.eq(1)].team.tolist()
-
-                        if tie_teams[0] in division_winners and tie_teams[1] not in division_winners:
-                            conference_rank[conference][tie_teams[0]] = conference_rk 
-                            conference_rank[conference][tie_teams[1]] = conference_rk + 1
-                            conference_rk += 2
-                        
-                        elif tie_teams[1] in division_winners and tie_teams[0] not in division_winners:
-                            conference_rank[conference][tie_teams[1]] = conference_rk 
-                            conference_rank[conference][tie_teams[0]] = conference_rk + 1
-                            conference_rk += 2
-                        
-                        else:
-                            team0_division = tie_rows[tie_rows.team.eq(tie_teams[0])].division.iloc[0]
-                            team1_division = tie_rows[tie_rows.team.eq(tie_teams[1])].division.iloc[0]
-
-                            team0_div_wp = int(tie_rows.loc[tie_rows.team.eq(tie_teams[0]), f"{team0_division}_wins"].iloc[0]) / \
-                                (
-                                    int(tie_rows.loc[tie_rows.team.eq(tie_teams[0]), f"{team0_division}_wins"].iloc[0]) + 
-                                    int(tie_rows.loc[tie_rows.team.eq(tie_teams[0]), f"{team0_division}_losses"].iloc[0])
-                                )
-
-                            team1_div_wp = int(tie_rows.loc[tie_rows.team.eq(tie_teams[1]), f"{team1_division}_wins"].iloc[0]) / \
-                                (
-                                    int(tie_rows.loc[tie_rows.team.eq(tie_teams[1]), f"{team1_division}_wins"].iloc[0]) + 
-                                    int(tie_rows.loc[tie_rows.team.eq(tie_teams[1]), f"{team1_division}_losses"].iloc[0])
-                                )
-                            
-                            if team0_div_wp > team1_div_wp:
-                                conference_rank[conference][tie_teams[0]] = conference_rk 
-                                conference_rank[conference][tie_teams[1]] = conference_rk + 1
-                                conference_rk += 2
-
-                            elif team1_div_wp > team0_div_wp:
-                                conference_rank[conference][tie_teams[1]] = conference_rk 
-                                conference_rank[conference][tie_teams[0]] = conference_rk + 1
-                                conference_rk += 2
-
+                    ties_history, conference_rank, conference_rk = result 
         if len(conference_rank[conference]) < len(conference_df):
             raise ValueError("Need to revisit the function code to add more tiebreakers")
         for tm, rank in conference_rank[conference].items():
@@ -981,6 +1199,8 @@ def get_year_standings(year, page_limit, pages_visited=0, start_time=None):
     else:
         expanded_standings = get_NBA_after_2004_year_expanded_standings(year)
 
+    pages_visited += 1
+
     if pages_visited == page_limit:
         wait_time = max(0, 60 - (time.time() - start_time))
         print(f"Rate limited. Waiting for {wait_time:.2f} seconds")
@@ -991,36 +1211,48 @@ def get_year_standings(year, page_limit, pages_visited=0, start_time=None):
 
     team_vs_team, pivoted_team_vs_team = get_year_team_vs_team(year)
 
+    pages_visited += 1
+
     if year >= 1971:
         expanded_standings = get_conference_rank(expanded_standings, team_vs_team)
 
+    print(f"Added standings history for {year}")
+
     return expanded_standings, pivoted_team_vs_team, pages_visited, start_time 
 
-def get_selected_years_standings(years, page_limit):
-    exp_standings = pd.DataFrame() 
-    tm_vs_tm = pd.DataFrame()
-    pages_visited = 0
-    start_time = None 
+def get_standings_not_already_existing(years):
+    db_path = Path("~/Personal Project/data/nba.db").expanduser()
+    engine = create_engine(f"sqlite:///{db_path}")
 
-    for year in years:
-        expanded_standings, team_vs_team, pages_visited, start_time = get_year_standings(year, page_limit, pages_visited=pages_visited, start_time=start_time)
-        exp_standings = pd.concat([exp_standings, expanded_standings], axis=0)
-        tm_vs_tm = pd.concat([tm_vs_tm, team_vs_team], axis=0)
+    years_existing = []
+    with engine.connect() as conn:
+        tables = [
+            "standings_history_after_2004",
+            "standings_history_after_1970_to_2004",
+            "standings_history_after_1950_to_1970",
+            "standings_history_1950",
+            "standings_history_before_1950"
+        ]
+        
+        for table in tables:
+            try:
+                years_existing += [year[0] for year in conn.execute(text(f"SELECT DISTINCT year FROM {table}")).fetchall()]
+            except Exception:
+                pass
+        
+    return [year for year in years if year not in years_existing]
 
-        print(f"Standings history added for {year}")
-
-    return exp_standings, tm_vs_tm
-
-def move_standings_to_database(expanded_standings, team_vs_team):
+def move_standings_to_database(expanded_standings, team_vs_team, year):
     db_path = Path("~/Personal Project/data/nba.db").expanduser()
     engine = create_engine(f"sqlite:///{db_path}")
 
     after_2004_standings = expanded_standings[expanded_standings.year.ge(2005)]
-    after_1970_standings = expanded_standings[expanded_standings.year.ge(1970) & expanded_standings.year.lt(2005)]
+    after_1970_standings = expanded_standings[expanded_standings.year.ge(1971) & expanded_standings.year.lt(2005)]
+    after_1950_standings = expanded_standings[expanded_standings.year.ge(1951) & expanded_standings.year.lt(1971)]
     equal_1950_standings = expanded_standings[expanded_standings.year.eq(1950)]
     before_1950_standings = expanded_standings[expanded_standings.year.lt(1950)]
 
-    if after_2004_standings:
+    if len(after_2004_standings):
         after_2004_standings.to_sql(
             "standings_history_after_2004",
             engine,
@@ -1028,7 +1260,7 @@ def move_standings_to_database(expanded_standings, team_vs_team):
             index=False
         )
 
-    if after_1970_standings:
+    if len(after_1970_standings):
         after_1970_standings.to_sql(
             "standings_history_after_1970_to_2004",
             engine,
@@ -1036,7 +1268,15 @@ def move_standings_to_database(expanded_standings, team_vs_team):
             index=False
         )
 
-    if equal_1950_standings:
+    if len(after_1950_standings):
+        after_1950_standings.to_sql(
+            "standings_history_after_1950_to_1970",
+            engine,
+            if_exists="append",
+            index=False
+        )
+
+    if len(equal_1950_standings):
         equal_1950_standings.to_sql(
             "standings_history_1950",
             engine,
@@ -1044,7 +1284,7 @@ def move_standings_to_database(expanded_standings, team_vs_team):
             index=False
         )
 
-    if before_1950_standings:
+    if len(before_1950_standings):
         before_1950_standings.to_sql(
             "standings_history_before_1950",
             engine,
@@ -1059,5 +1299,20 @@ def move_standings_to_database(expanded_standings, team_vs_team):
         index=False
     )
 
+    print(f"Successfully moved {year} standings to database.")
+
+def standings_history_etl(years, page_limit):
+    pages_visited = 0
+    start_time = time.time()
+
+    years = get_standings_not_already_existing(years)
+
+    if years:
+        for year in years:
+            expanded_standings, pivoted_team_vs_team, pages_visited, start_time = get_year_standings(year, 15, pages_visited, start_time)
+            move_standings_to_database(expanded_standings, pivoted_team_vs_team, year)
+    else:
+        print("All years are accounted for.")
+
 if __name__ == "__main__": 
-    get_selected_years_standings(list(range(1947, 2027)), page_limit=15)
+    standings_history_etl(list(range(1947, 2027)), 15)
