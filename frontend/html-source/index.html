@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="../css-source/index.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    </head>
+    <body>
+
+        <nav id="navigation-bar" class="liquid-glass">
+            <a class="navigation-link roboto-100-nav" href="./index.html">Home</a>
+            <a class="navigation-link roboto-100-nav" href="./fantasy.html">Fantasy</a>
+            <a class="navigation-link roboto-100-nav" href="./scores.html">Scores</a>
+            <a class="navigation-link roboto-100-nav" href="./stats.html">Stats</a>
+            <a class="navigation-link roboto-100-nav" href="./standings.html">Standings</a>
+            <a class="navigation-link roboto-100-nav" href="./settings.html">Settings</a>
+            <a class="navigation-link roboto-100-nav" href="./account.html">Account</a>
+        </nav>
+
+        <div id="hero-section-wrapper">
+            <div id="hero-description">
+                <h1 class="hero-header roboto-800">All Hoops. All The Time.</h1>
+                <p class="hero-subtext roboto-400">
+                    Your complete basketball destination, built for fans who want it all. 
+                    Create and manage fantasy teams, follow live scores, track current standings, 
+                    explore in-depth statistics and analytics, and revisit decades of basketball history 
+                    through our extensive almanac. Whether you are checking tonight’s games or digging into 
+                    the numbers behind the sport, everything you need is in one place and completely free. 
+                    Learn more below, or jump into any tab to start exploring. 
+                </p>
+                <div class="liquid-glass" id="learn-more-button">Learn More</div>
+            </div>
+            <div id="hero-action">
+                <div class="hero-dashboard liquid-glass">
+                    <div class="dashboard-topline">
+                        <div>
+                            <span class="eyebrow roboto-400">LIVE TONIGHT</span>
+                            <h2 class="dashboard-title roboto-800">Game Center</h2>
+                        </div>
+                        <span class="live-indicator roboto-400">
+                            <span class="live-dot"></span>
+                            Live
+                        </span>
+                    </div>
+
+                    <div class="score-card">
+                        <div class="score-team">
+                            <span class="team-mark team-mark-sun">PHX</span>
+                            <span class="team-name roboto-400">Phoenix</span>
+                        </div>
+                        <div class="score-center">
+                            <strong class="roboto-800">104</strong>
+                            <span class="roboto-400">4th · 2:18</span>
+                            <strong class="roboto-800">101</strong>
+                        </div>
+                        <div class="score-team">
+                            <span class="team-mark team-mark-wave">MIN</span>
+                            <span class="team-name roboto-400">Minnesota</span>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <section class="mini-panel standings-panel">
+                            <div class="panel-heading">
+                                <span class="roboto-800">West</span>
+                                <span class="roboto-400">W–L</span>
+                            </div>
+                            <div class="standing-row roboto-400">
+                                <span><b>1</b> Phoenix</span><strong>48–19</strong>
+                            </div>
+                            <div class="standing-row roboto-400">
+                                <span><b>2</b> Denver</span><strong>46–21</strong>
+                            </div>
+                            <div class="standing-row roboto-400">
+                                <span><b>3</b> Minnesota</span><strong>44–23</strong>
+                            </div>
+                        </section>
+
+                        <section class="mini-panel stats-panel">
+                            <div class="panel-heading">
+                                <span class="roboto-800">Momentum</span>
+                                <span class="trend roboto-400">+8.4%</span>
+                            </div>
+                            <div class="chart" aria-label="Team momentum trending upward">
+                                <span style="--bar: 42%"></span>
+                                <span style="--bar: 55%"></span>
+                                <span style="--bar: 48%"></span>
+                                <span style="--bar: 70%"></span>
+                                <span style="--bar: 64%"></span>
+                                <span style="--bar: 86%"></span>
+                                <span style="--bar: 100%"></span>
+                            </div>
+                            <div class="chart-caption roboto-400">
+                                <span>Last 7 games</span>
+                                <strong>6–1</strong>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div class="fantasy-card">
+                        <div class="fantasy-copy">
+                            <span class="eyebrow roboto-400">YOUR FANTASY MATCHUP</span>
+                            <strong class="roboto-800">Desert Flight leads by 18.6</strong>
+                        </div>
+                        <div class="fantasy-progress">
+                            <span></span>
+                        </div>
+                        <span class="fantasy-score roboto-800">142.8</span>
+                    </div>
+                </div>
+
+            </div>
+             
+        </div>
+
+        <script type="module" src="../js-source/index.js"></script>
+    </body>
+</html>
