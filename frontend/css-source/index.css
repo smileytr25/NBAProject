@@ -6,8 +6,9 @@ body {
 
 body {
     min-height: 100vh;
-    background: rgb(229, 224, 224);
 }
+
+/* Font styles */ 
 
 .roboto-100-nav {
   font-family: "Roboto", sans-serif;
@@ -39,6 +40,8 @@ body {
   font-variation-settings:
     "wdth" 100;
 }
+
+/* Liquid glass effect */ 
 
 .liquid-glass {
     --glass-radius: 22px;
@@ -105,12 +108,19 @@ body {
     pointer-events: none;
 }
 
+/* Navigation bar styles */ 
+
 #navigation-bar {
-    z-index: 1;
+    position: fixed; 
+    z-index: 100;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+
     display: flex;
     height: 45px;
     width: 60%;
-    margin: 20px auto 0px auto;
+    margin: 0;
 }
 
 .navigation-link {
@@ -128,6 +138,7 @@ body {
     border-radius: 16px;
     transition: all ease-in-out .5s;
 }
+
 .navigation-link:hover {
     background: rgba(255, 255, 255, 0.42);
     border-color: rgba(255, 255, 255, 0.72);
@@ -137,14 +148,36 @@ body {
     transform: translateY(-1px);
 }
 
+/* Hero section styles */ 
+
+#hero-section {
+    position: relative;
+    z-index: 1;
+    height: 105vh;
+    background: rgb(229, 224, 224);
+    padding-top: 10rem;
+    box-sizing: border-box;
+    box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
+    border-bottom-left-radius: 25px;
+    border-bottom-right-radius: 25px;
+}
+
 #hero-section-wrapper {
     position: relative;
     z-index: 1;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    width: 90%;
-    margin: 10rem auto 0rem auto;
-    padding: 10px;
+    width: 80%;
+    margin: 0 auto;
+    padding: 50px;
+    border-radius: 50px;
+    box-shadow: 
+    rgba(0, 0, 0, 0.25) 0px 54px 55px, 
+    rgba(0, 0, 0, 0.12) 0px -12px 30px, 
+    rgba(0, 0, 0, 0.12) 0px 4px 6px, 
+    rgba(0, 0, 0, 0.17) 0px 12px 13px, 
+    rgba(0, 0, 0, 0.09) 0px -3px 5px;
+    ;
 }
 
 #hero-description {
@@ -161,6 +194,10 @@ body {
 
 .hero-header {
     font-size: 44px;
+}
+
+.hero-subtext {
+    width: 90%;
 }
 
 #learn-more-button {
@@ -448,4 +485,12 @@ body {
         display: none;
     }
 
+}
+
+/* Home About Section Styles */
+
+#home-about-section {
+    background-color: #ff7b57;
+    height: 105vh;
+    margin-top: -5vh;
 }
