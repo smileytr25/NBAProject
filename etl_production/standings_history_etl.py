@@ -1,6 +1,7 @@
 import pandas as pd 
 import requests 
 import numpy as np
+import sys
 from pathlib import Path 
 from bs4 import BeautifulSoup, Comment
 from io import StringIO 
@@ -8,6 +9,12 @@ from sqlalchemy import create_engine, text
 from urllib.error import HTTPError
 import time 
 import numpy as np 
+
+project_root = str(Path(__file__).resolve().parents[1])
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+    
+from utils.rate_limit import wait_for_rate_limit
 
 def get_BAA_year_expanded_standings(year):
     url = f"https://www.basketball-reference.com/leagues/BAA_{year}_standings.html"
@@ -1179,13 +1186,7 @@ def get_year_standings(year, page_limit, pages_visited=0, start_time=None):
     if not start_time: 
         start_time = time.time() 
 
-    if pages_visited == page_limit:
-        wait_time = max(0, 60 - (time.time() - start_time))
-        print(f"Rate limited. Waiting for {wait_time:.2f} seconds")
-        time.sleep(wait_time)
-
-        pages_visited = 0
-        start_time = time.time()
+    pages_visited, start_time = wait_for_rate_limit(page_limit, pages_visited, start_time)
     
     expanded_standings = None
     if year < 1950:
@@ -1201,13 +1202,7 @@ def get_year_standings(year, page_limit, pages_visited=0, start_time=None):
 
     pages_visited += 1
 
-    if pages_visited == page_limit:
-        wait_time = max(0, 60 - (time.time() - start_time))
-        print(f"Rate limited. Waiting for {wait_time:.2f} seconds")
-        time.sleep(wait_time)
-
-        pages_visited = 0
-        start_time = time.time()
+    pages_visited, start_time = wait_for_rate_limit(page_limit, pages_visited, start_time)
 
     team_vs_team, pivoted_team_vs_team = get_year_team_vs_team(year)
 

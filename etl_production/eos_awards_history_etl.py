@@ -4,8 +4,15 @@ import pandas as pd
 import numpy as np 
 from io import StringIO 
 import time 
+import sys
 from sqlalchemy import create_engine, text 
 from pathlib import Path 
+
+project_root = str(Path(__file__).resolve().parents[1])
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+    
+from utils.rate_limit import wait_for_rate_limit
 
 def get_element_from_comment(soup, wrapper_id, element_type, element_id):
     wrapper = soup.find("div", id=wrapper_id)
@@ -162,14 +169,8 @@ def get_selected_years_eos_awards(years, page_limit):
     }
 
     for year in years:
-        if rate_limiting and pages_visited == page_limit:
-            current_time = time.time()
-            wait_time = max(0, 60 - (current_time - start_time))
-            print(f"Rate limited. Waiting {wait_time:.2f} seconds")
-
-            time.sleep(wait_time)
-            start_time = time.time()
-            pages_visited = 0
+        if rate_limiting:
+            pages_visited, start_time = wait_for_rate_limit(page_limit, pages_visited, start_time)
 
         if year < 1947:
             print(f"Year is invalid. Skipping {year}...")

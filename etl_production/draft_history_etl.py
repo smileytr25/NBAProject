@@ -1,8 +1,16 @@
 import pandas as pd
 import time 
+import sys
 from sqlalchemy import create_engine, text 
+from sqlalchemy.exc import SQLAlchemyError
 from pathlib import Path
 import requests 
+
+project_root = str(Path(__file__).resolve().parents[1])
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+    
+from utils.rate_limit import wait_for_rate_limit
 
 def get_year_draft_results(year):
     url = f"https://www.basketball-reference.com/draft/{"NBA" if year >= 1950 else "BAA"}_{year}.html"
@@ -17,56 +25,64 @@ def get_year_draft_results(year):
 
     return df
 
-def check_for_drafts_to_scrape():
+def check_for_drafts_to_scrape(page_limit):
     db_path = Path("~/Personal Project/data/nba.db").expanduser()
     engine = create_engine(f"sqlite:///{db_path}")
     
-    with engine.connect() as conn:
-        query = text("SELECT MAX(Year) FROM draft_history")
-        last_draft_in_db = int(conn.execute(query).fetchone()[0])
+    try:
+        with engine.connect() as conn:
+            query = text("SELECT MAX(Year) FROM draft_history")
+            last_draft_in_db = conn.execute(query).fetchone()[0]
+    except SQLAlchemyError:
+        last_draft_in_db = None
 
-        start_of_new_years = next_year_to_check = last_draft_in_db + 1
-        
-        while requests.get(f"https://www.basketball-reference.com/draft/NBA_{next_year_to_check}").status_code == 200:
-            next_year_to_check += 1
+    if last_draft_in_db is None:
+        last_draft_in_db = 1946
 
-        return list(range(start_of_new_years, next_year_to_check))
+    start_of_new_years = next_year_to_check = int(last_draft_in_db) + 1
+    pages_visited = 0
+    start_time = time.time()
+
+    while True:
+        pages_visited, start_time = wait_for_rate_limit(page_limit, pages_visited, start_time)
+        league = "NBA" if next_year_to_check >= 1950 else "BAA"
+        response = requests.get(f"https://www.basketball-reference.com/draft/{league}_{next_year_to_check}.html")
+        pages_visited += 1
+
+        if response.status_code != 200:
+            break
+
+        next_year_to_check += 1
+
+    return list(range(start_of_new_years, next_year_to_check)), pages_visited, start_time
 
 def get_drafts_not_already_existing(years):
     db_path = Path("~/Personal Project/data/nba.db").expanduser()
     engine = create_engine(f"sqlite:///{db_path}")
 
     years_existing = []
-    with engine.connect() as conn:
-        years_existing += [year[0] for year in conn.execute(text("SELECT DISTINCT Year FROM draft_history")).fetchall()]
+    try:
+        with engine.connect() as conn:
+            years_existing += [year[0] for year in conn.execute(text("SELECT DISTINCT Year FROM draft_history")).fetchall()]
+    except SQLAlchemyError:
+        return years
 
     return [year for year in years if year not in years_existing]
         
-def get_selected_years_draft_results(years, page_limit):
-    rate_limiting = len(years) >= page_limit
-    
-    if rate_limiting: 
-        pages_visited = 0
+def get_selected_years_draft_results(years, page_limit, pages_visited=0, start_time=None):
+    if start_time is None:
         start_time = time.time()
     
     df = pd.DataFrame()
     for year in years:
-        if rate_limiting and pages_visited == page_limit:
-            current_time = time.time()
-            wait_time = max(0, 60 - (current_time - start_time))
-            print(f"Rate limited. Waiting {wait_time:.2f} seconds")
-
-            time.sleep(wait_time)
-            start_time = time.time()
-            pages_visited = 0
+        pages_visited, start_time = wait_for_rate_limit(page_limit, pages_visited, start_time)
 
         if year < 1947:
             print(f"Year is invalid. Skipping {year}...")
             continue 
 
         year_df = get_year_draft_results(year)
-        if rate_limiting:
-            pages_visited += 1
+        pages_visited += 1
 
         year_df["Year"] = year
         
@@ -91,12 +107,13 @@ def move_draft_history_to_database(draft_history):
 
 def draft_history_etl(years, page_limit):
     years = get_drafts_not_already_existing(years)
-    years += check_for_drafts_to_scrape()
+    new_years, pages_visited, start_time = check_for_drafts_to_scrape(page_limit)
+    years += new_years
     years = list(set(years))
 
     if years:
         print(f"Getting draft history for years: {', '.join([str(i) for i in years])}")
-        df = get_selected_years_draft_results(years, page_limit)
+        df = get_selected_years_draft_results(years, page_limit, pages_visited=pages_visited, start_time=start_time)
         move_draft_history_to_database(df)
     else:
         print("All years are accounted for.")

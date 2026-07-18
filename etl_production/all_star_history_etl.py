@@ -5,6 +5,13 @@ from bs4 import BeautifulSoup, Comment
 from pathlib import Path
 from sqlalchemy import create_engine
 import time 
+import sys
+
+project_root = str(Path(__file__).resolve().parents[1])
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+    
+from utils.rate_limit import wait_for_rate_limit
 
 def get_year_all_stars(year):
     url = f"https://www.basketball-reference.com/leagues/{"NBA" if year >= 1950 else "BAA"}_{year}.html#all_all_star_game_rosters"
@@ -43,21 +50,12 @@ def get_year_all_stars(year):
     return all_stars 
 
 def get_selected_years_all_stars(years, page_limit):
-    page_limiting = len(years) > page_limit
-
-    if page_limiting:
-        start_time = time.time()
-        pages_visited = 0
+    start_time = time.time()
+    pages_visited = 0
 
     all_stars = pd.DataFrame()
     for year in years:
-        if page_limiting and pages_visited == page_limit:
-            wait_time = max(0, 60 - (time.time() - start_time))
-            print(f"Page limited. Waiting {wait_time:.2f} seconds")
-            time.sleep(wait_time)
-
-            pages_visited = 0
-            start_time = time.time()
+        pages_visited, start_time = wait_for_rate_limit(page_limit, pages_visited, start_time)
 
         year_all_stars = get_year_all_stars(year)
 
@@ -95,4 +93,3 @@ def all_star_etl(years, page_limit):
 
 if __name__ == "__main__":
     all_star_etl(list(range(1947, 2027)), 15)
-

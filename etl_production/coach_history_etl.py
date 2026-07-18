@@ -1,7 +1,14 @@
 import pandas as pd 
 import time 
+import sys
 from pathlib import Path 
 from sqlalchemy import create_engine
+
+project_root = str(Path(__file__).resolve().parents[1])
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+    
+from utils.rate_limit import wait_for_rate_limit
 
 def get_year_coaches(year):
     url = f"https://www.basketball-reference.com/leagues/{"NBA" if year >= 1950 else "BAA"}_{year}_coaches.html"
@@ -34,22 +41,13 @@ def get_year_coaches(year):
     return raw_df 
 
 def get_selected_years_coaches(years, page_limit):
-    rate_limiting = len(years) > page_limit
-
-    if rate_limiting:
-        start_time = time.time() 
-        pages_visited = 0 
+    start_time = time.time()
+    pages_visited = 0 
 
     coaches = pd.DataFrame() 
 
     for year in years:
-        if rate_limiting and pages_visited == page_limit:
-            wait_time = max(0, 60 - (time.time() - start_time))
-            print(f"Rate limited. Waiting {wait_time:.2f} seconds")
-            time.sleep(wait_time)
-
-            start_time = time.time()
-            pages_visited = 0
+        pages_visited, start_time = wait_for_rate_limit(page_limit, pages_visited, start_time)
 
         year_coaches = get_year_coaches(year)
         coaches = pd.concat([coaches, year_coaches], axis=0)

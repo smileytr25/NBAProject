@@ -2,9 +2,16 @@ from sqlalchemy import text, create_engine
 import pandas as pd
 import numpy as np
 import time 
+import sys
 from pathlib import Path 
 from urllib.error import HTTPError
 import requests 
+
+project_root = str(Path(__file__).resolve().parents[1])
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+    
+from utils.rate_limit import wait_for_rate_limit
 
 def get_month_game_schedule(month, year):
     url = f"https://www.basketball-reference.com/leagues/{"NBA" if year >= 1950 else "BAA"}_{year}_games-{month}.html"
@@ -67,13 +74,7 @@ def get_year_game_schedule(year, page_limit, pages_visited=0, start_time=None):
         start_time = time.time()
 
     for month in months: 
-        if pages_visited == page_limit: 
-            wait_time = max(0, 60 - (time.time() - start_time))
-            print(f"Rate limited. Waiting for {wait_time:.2f} seconds")
-            time.sleep(wait_time)
-
-            pages_visited = 0
-            start_time = time.time()
+        pages_visited, start_time = wait_for_rate_limit(page_limit, pages_visited, start_time)
 
         df = get_month_game_schedule(month, year)
         schedule = pd.concat([schedule, df], axis=0)
@@ -124,22 +125,12 @@ def check_for_schedules_to_scrape(page_limit=15):
             next_month_to_check, next_year_to_check = pd.to_datetime(next_date_to_check).dt.month_name.str.lower(), int(pd.to_datetime(next_date_to_check).dt.year)
             next_season_year = next_year_to_check if next_month_to_check in ["january", "february", "march", "april", "may", "june"] else next_year_to_check + 1
             
-            if pages_visited == page_limit:
-                wait_time = max(0, 60 - (time.time() - start_time))
-                print(f"Rate limited. Waiting for {wait_time:.2f} seconds")
-                time.sleep(wait_time)
-                pages_visited = 0
-                start_time = time.time()
+            pages_visited, start_time = wait_for_rate_limit(page_limit, pages_visited, start_time)
             
             next_month_status_code = requests.get(f"https://www.basketball-reference.com/leagues/NBA_{next_year_to_check}_games-{next_month_to_check}.html")
             pages_visited += 1
 
-            if pages_visited == page_limit:
-                wait_time = max(0, 60 - (time.time() - start_time))
-                print(f"Rate limited. Waiting for {wait_time:.2f} seconds")
-                time.sleep(wait_time)
-                pages_visited = 0
-                start_time = time.time()
+            pages_visited, start_time = wait_for_rate_limit(page_limit, pages_visited, start_time)
 
             next_season_status_code = requests.get(f"https://www.basketball-reference.com/leagues/NBA_{next_season_year}_games-october.html")
             pages_visited += 1
