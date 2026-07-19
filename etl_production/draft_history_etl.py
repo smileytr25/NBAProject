@@ -1,7 +1,7 @@
 import pandas as pd
 import time 
 import sys
-from sqlalchemy import create_engine, text 
+from sqlalchemy import text 
 from sqlalchemy.exc import SQLAlchemyError
 from pathlib import Path
 import requests 
@@ -11,6 +11,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
     
 from utils.rate_limit import wait_for_rate_limit
+from utils.database import get_nba_db_engine
 
 def get_year_draft_results(year):
     url = f"https://www.basketball-reference.com/draft/{"NBA" if year >= 1950 else "BAA"}_{year}.html"
@@ -26,8 +27,7 @@ def get_year_draft_results(year):
     return df
 
 def check_for_drafts_to_scrape(page_limit):
-    db_path = Path("~/Personal Project/data/nba.db").expanduser()
-    engine = create_engine(f"sqlite:///{db_path}")
+    engine = get_nba_db_engine()
     
     try:
         with engine.connect() as conn:
@@ -57,8 +57,7 @@ def check_for_drafts_to_scrape(page_limit):
     return list(range(start_of_new_years, next_year_to_check)), pages_visited, start_time
 
 def get_drafts_not_already_existing(years):
-    db_path = Path("~/Personal Project/data/nba.db").expanduser()
-    engine = create_engine(f"sqlite:///{db_path}")
+    engine = get_nba_db_engine()
 
     years_existing = []
     try:
@@ -93,8 +92,7 @@ def get_selected_years_draft_results(years, page_limit, pages_visited=0, start_t
     return df
 
 def move_draft_history_to_database(draft_history):
-    db_path = Path("~/Personal Project/data/nba.db").expanduser()
-    engine = create_engine(f"sqlite:///{db_path}")
+    engine = get_nba_db_engine()
     
     draft_history.to_sql(
         "draft_history",

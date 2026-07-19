@@ -3,7 +3,6 @@ import requests
 import numpy as np 
 from bs4 import BeautifulSoup, Comment
 from pathlib import Path
-from sqlalchemy import create_engine
 import time 
 import sys
 
@@ -12,6 +11,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
     
 from utils.rate_limit import wait_for_rate_limit
+from utils.database import get_nba_db_engine
 
 def get_year_all_stars(year):
     url = f"https://www.basketball-reference.com/leagues/{"NBA" if year >= 1950 else "BAA"}_{year}.html#all_all_star_game_rosters"
@@ -75,8 +75,7 @@ def get_selected_years_all_stars(years, page_limit):
     return all_stars 
 
 def move_all_stars_to_database(all_stars):
-    db_path = Path("~/Personal Project/data/nba.db").expanduser()
-    engine = create_engine(f"sqlite:///{db_path}")
+    engine = get_nba_db_engine()
 
     all_stars.to_sql(
         "all-star_history",

@@ -1,6 +1,12 @@
 import pandas as pd 
 from pathlib import Path 
-from sqlalchemy import create_engine
+import sys
+
+project_root = str(Path(__file__).resolve().parents[1])
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+from utils.database import get_nba_db_engine
 
 def move_all_team_history_to_database():
     url = "https://www.basketball-reference.com/teams/"
@@ -28,9 +34,7 @@ def move_all_team_history_to_database():
 
     season_members["Year"] = season_members["Year"].astype(int)
     season_members = season_members[["Franchise", "Year"]]
-
-    db_path = Path("~/Personal Project/data/nba.db").expanduser()
-    engine = create_engine(f"sqlite:///{db_path}")
+    engine = get_nba_db_engine()
 
     team_histories.to_sql(
         "franchies_histories",

@@ -5,7 +5,7 @@ import numpy as np
 from io import StringIO 
 import time 
 import sys
-from sqlalchemy import create_engine, text 
+from sqlalchemy import text 
 from pathlib import Path 
 
 project_root = str(Path(__file__).resolve().parents[1])
@@ -13,6 +13,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
     
 from utils.rate_limit import wait_for_rate_limit
+from utils.database import get_nba_db_engine
 
 def get_element_from_comment(soup, wrapper_id, element_type, element_id):
     wrapper = soup.find("div", id=wrapper_id)
@@ -202,8 +203,7 @@ def get_selected_years_eos_awards(years, page_limit):
     return league_awards_df, all_nba_df, all_defensive_df, all_rookie_df, all_tourney_df
 
 def move_eos_awards_to_database(league_awards_df, all_nba_df, all_defensive_df, all_rookie_df, all_tourney_df):
-    db_path = Path("~/Personal Project/data/nba.db").expanduser()
-    engine = create_engine(f"sqlite:///{db_path}")
+    engine = get_nba_db_engine()
 
     league_awards_df.to_sql(
         "league_awards_history",

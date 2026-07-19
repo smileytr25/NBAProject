@@ -2,13 +2,13 @@ import pandas as pd
 import time 
 import sys
 from pathlib import Path 
-from sqlalchemy import create_engine
 
 project_root = str(Path(__file__).resolve().parents[1])
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
     
 from utils.rate_limit import wait_for_rate_limit
+from utils.database import get_nba_db_engine
 
 def get_year_coaches(year):
     url = f"https://www.basketball-reference.com/leagues/{"NBA" if year >= 1950 else "BAA"}_{year}_coaches.html"
@@ -28,9 +28,7 @@ def get_year_coaches(year):
     raw_df.columns = col_names
     raw_df = raw_df.drop(columns=["ut0", "ut1", "ut2"])
     raw_df = raw_df.fillna(0)
-
-    db_path = Path("~/Personal Project/data/nba.db").expanduser()
-    engine = create_engine(f"sqlite:///{db_path}")
+    engine = get_nba_db_engine()
 
     abbrev_mapping = pd.read_sql("SELECT * FROM team_abbreviation_to_teamname", engine)
     abbrev_mapping = {i : j for (_, i, j) in abbrev_mapping.itertuples()}
@@ -58,8 +56,7 @@ def get_selected_years_coaches(years, page_limit):
     return coaches
 
 def move_coaches_history_to_database(coaches):
-    db_path = Path("~/Personal Project/data/nba.db").expanduser()
-    engine = create_engine(f"sqlite:///{db_path}")
+    engine = get_nba_db_engine()
 
     coaches.to_sql(
         "coaches_history",

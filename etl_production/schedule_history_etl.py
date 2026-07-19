@@ -1,4 +1,4 @@
-from sqlalchemy import text, create_engine
+from sqlalchemy import text
 import pandas as pd
 import numpy as np
 import time 
@@ -12,6 +12,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
     
 from utils.rate_limit import wait_for_rate_limit
+from utils.database import get_nba_db_engine
 
 def get_month_game_schedule(month, year):
     url = f"https://www.basketball-reference.com/leagues/{"NBA" if year >= 1950 else "BAA"}_{year}_games-{month}.html"
@@ -94,8 +95,7 @@ def get_selected_years_game_schedule(years, page_limit):
     return schedule
 
 def move_game_schedule_to_database(schedule):
-    db_path = Path("~/Personal Project/data/nba.db").expanduser()
-    engine = create_engine(f"sqlite:///{db_path}")
+    engine = get_nba_db_engine()
 
     schedule.to_sql(
         "game_schedule_history",
@@ -107,8 +107,7 @@ def move_game_schedule_to_database(schedule):
     print("Successfully moved to database.")
 
 def check_for_schedules_to_scrape(page_limit=15):
-    db_path = Path("~/Personal Project/data/nba.db").expanduser()
-    engine = create_engine(f"sqlite:///{db_path}")
+    engine = get_nba_db_engine()
 
     with engine.connect() as conn:
         query = text("SELECT MAX(date) FROM game_schedule_history")
@@ -149,8 +148,7 @@ def check_for_schedules_to_scrape(page_limit=15):
         return dates_available
 
 def get_schedules_not_already_existing(years):
-    db_path = Path("~/Personal Project/data/nba.db").expanduser()
-    engine = create_engine(f"sqlite:///{db_path}")
+    engine = get_nba_db_engine()
 
     years_existing = []
     with engine.connect() as conn:

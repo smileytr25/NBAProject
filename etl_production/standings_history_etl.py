@@ -5,7 +5,7 @@ import sys
 from pathlib import Path 
 from bs4 import BeautifulSoup, Comment
 from io import StringIO 
-from sqlalchemy import create_engine, text 
+from sqlalchemy import text 
 from urllib.error import HTTPError
 import time 
 import numpy as np 
@@ -15,6 +15,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
     
 from utils.rate_limit import wait_for_rate_limit
+from utils.database import get_nba_db_engine
 
 def get_BAA_year_expanded_standings(year):
     url = f"https://www.basketball-reference.com/leagues/BAA_{year}_standings.html"
@@ -1216,8 +1217,7 @@ def get_year_standings(year, page_limit, pages_visited=0, start_time=None):
     return expanded_standings, pivoted_team_vs_team, pages_visited, start_time 
 
 def get_standings_not_already_existing(years):
-    db_path = Path("~/Personal Project/data/nba.db").expanduser()
-    engine = create_engine(f"sqlite:///{db_path}")
+    engine = get_nba_db_engine()
 
     years_existing = []
     with engine.connect() as conn:
@@ -1238,8 +1238,7 @@ def get_standings_not_already_existing(years):
     return [year for year in years if year not in years_existing]
 
 def move_standings_to_database(expanded_standings, team_vs_team, year):
-    db_path = Path("~/Personal Project/data/nba.db").expanduser()
-    engine = create_engine(f"sqlite:///{db_path}")
+    engine = get_nba_db_engine()
 
     after_2004_standings = expanded_standings[expanded_standings.year.ge(2005)]
     after_1970_standings = expanded_standings[expanded_standings.year.ge(1971) & expanded_standings.year.lt(2005)]
