@@ -1,14 +1,7 @@
 import pandas as pd 
-from pathlib import Path 
-import sys
-
-project_root = str(Path(__file__).resolve().parents[1])
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-
-from crawler.fetch import read_html
-from crawler.urls import all_teams_url
-from utils.database import get_nba_db_engine
+from src.hoophub.crawler.fetch import read_html
+from src.hoophub.crawler.urls import all_teams_url
+from src.hoophub.utils.database import get_nba_db_engine
 
 def run():
     url = all_teams_url()

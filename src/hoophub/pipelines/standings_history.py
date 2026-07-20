@@ -1,19 +1,10 @@
 import pandas as pd 
-import numpy as np
-import sys
-from pathlib import Path 
 from bs4 import BeautifulSoup, Comment
 from io import StringIO 
 from sqlalchemy import text 
-import numpy as np 
-
-project_root = str(Path(__file__).resolve().parents[1])
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-    
-from crawler.fetch import fetch_response_content
-from crawler.urls import standings_url
-from utils.database import get_nba_db_engine
+from src.hoophub.crawler.fetch import fetch_response_content
+from src.hoophub.crawler.urls import standings_url
+from src.hoophub.utils.database import get_nba_db_engine
 
 def get_BAA_year_expanded_standings(year, page_limit):
     url = standings_url(year)

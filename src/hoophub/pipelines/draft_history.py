@@ -1,15 +1,11 @@
 import pandas as pd
-import sys
 from sqlalchemy import text 
 from sqlalchemy.exc import SQLAlchemyError
 from pathlib import Path
-project_root = str(Path(__file__).resolve().parents[1])
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
     
-from crawler.fetch import fetch_response_status_code, read_html
-from crawler.urls import draft_url
-from utils.database import get_nba_db_engine
+from src.hoophub.crawler.fetch import fetch_response_status_code, read_html
+from src.hoophub.crawler.urls import draft_url
+from src.hoophub.utils.database import get_nba_db_engine
 
 def get_year_draft_results(year, page_limit):
     url = draft_url(year)

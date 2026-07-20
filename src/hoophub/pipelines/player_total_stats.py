@@ -1,16 +1,10 @@
 import pandas as pd 
-from pathlib import Path 
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
-import sys 
-project_root = str(Path(__file__).resolve().parents[1])
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-
-from crawler.fetch import fetch_response_status_code, read_html
-from crawler.urls import player_stats_url
-from utils.database import get_nba_db_engine
-from utils.text_cleaning import remove_accents
+from src.hoophub.crawler.fetch import fetch_response_status_code, read_html
+from src.hoophub.crawler.urls import player_stats_url
+from src.hoophub.utils.database import get_nba_db_engine
+from src.hoophub.utils.text_cleaning import remove_accents
 
 def get_year_player_total_stats(year, season_type, page_limit):
     url = player_stats_url(year, "totals")

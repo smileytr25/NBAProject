@@ -1,16 +1,9 @@
 from sqlalchemy import text
 import pandas as pd
-import numpy as np
-import sys
-from pathlib import Path 
 from urllib.error import HTTPError
-project_root = str(Path(__file__).resolve().parents[1])
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-    
-from crawler.fetch import fetch_response_status_code, read_html
-from crawler.urls import schedule_url
-from utils.database import get_nba_db_engine
+from src.hoophub.crawler.fetch import fetch_response_status_code, read_html
+from src.hoophub.crawler.urls import schedule_url
+from src.hoophub.utils.database import get_nba_db_engine
 
 def get_month_game_schedule(month, year, page_limit):
     url = schedule_url(year, month)

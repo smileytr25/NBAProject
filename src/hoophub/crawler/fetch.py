@@ -1,9 +1,9 @@
-from crawler.client import SportsReferenceClient
+from src.hoophub.crawler.client import SportsReferenceClient
 import pandas as pd
 from requests import Response
 from typing import Any 
 
-from crawler.rate_limit import wait_for_rate_limit
+from src.hoophub.crawler.rate_limit import wait_for_rate_limit
 
 _client = SportsReferenceClient()
 DEFAULT_PAGE_LIMIT = 15

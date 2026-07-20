@@ -1,17 +1,9 @@
 from bs4 import BeautifulSoup, Comment
 import pandas as pd 
-import numpy as np 
 from io import StringIO 
-import sys
-from pathlib import Path 
-
-project_root = str(Path(__file__).resolve().parents[1])
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-    
-from crawler.fetch import fetch_response_content
-from crawler.urls import league_page_subsection_url
-from utils.database import get_nba_db_engine
+from src.hoophub.crawler.fetch import fetch_response_content
+from src.hoophub.crawler.urls import league_page_subsection_url
+from src.hoophub.utils.database import get_nba_db_engine
 
 def get_element_from_comment(soup, wrapper_id, element_type, element_id):
     wrapper = soup.find("div", id=wrapper_id)
