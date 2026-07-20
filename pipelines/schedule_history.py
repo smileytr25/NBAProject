@@ -1,24 +1,22 @@
 from sqlalchemy import text
 import pandas as pd
 import numpy as np
-import time 
 import sys
 from pathlib import Path 
 from urllib.error import HTTPError
-import requests 
-
 project_root = str(Path(__file__).resolve().parents[1])
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
     
-from utils.rate_limit import wait_for_rate_limit
+from crawler.fetch import fetch_response_status_code, read_html
+from crawler.urls import schedule_url
 from utils.database import get_nba_db_engine
 
-def get_month_game_schedule(month, year):
-    url = f"https://www.basketball-reference.com/leagues/{"NBA" if year >= 1950 else "BAA"}_{year}_games-{month}.html"
+def get_month_game_schedule(month, year, page_limit):
+    url = schedule_url(year, month)
     
     try:
-        schedule = pd.read_html(url, attrs={"id" : "schedule"})[0]
+        schedule = read_html(url, page_limit=page_limit, attrs={"id" : "schedule"})[0]
 
         schedule = schedule[schedule.Date.ne("Playoffs")]
 
@@ -63,7 +61,7 @@ def get_month_game_schedule(month, year):
         print(e)
         return pd.DataFrame()
 
-def get_year_game_schedule(year, page_limit, pages_visited=0, start_time=None):
+def get_year_game_schedule(year, page_limit):
     months = [
         "october", "november", "december", "january", "february", "march", 
         "april", "may", "june"
@@ -71,25 +69,17 @@ def get_year_game_schedule(year, page_limit, pages_visited=0, start_time=None):
 
     schedule = pd.DataFrame() 
 
-    if not start_time:
-        start_time = time.time()
-
     for month in months: 
-        pages_visited, start_time = wait_for_rate_limit(page_limit, pages_visited, start_time)
-
-        df = get_month_game_schedule(month, year)
+        df = get_month_game_schedule(month, year, page_limit)
         schedule = pd.concat([schedule, df], axis=0)
-        pages_visited += 1
 
-    return schedule, pages_visited, start_time
+    return schedule
 
 def get_selected_years_game_schedule(years, page_limit):
     schedule = pd.DataFrame()
-    pages_visited = 0
-    start_time = None
 
     for year in years:
-        df, pages_visited, start_time = get_year_game_schedule(year, page_limit, pages_visited=pages_visited, start_time=start_time)
+        df = get_year_game_schedule(year, page_limit)
         schedule = pd.concat([schedule, df], axis=0)
 
     return schedule
@@ -117,22 +107,11 @@ def check_for_schedules_to_scrape(page_limit=15):
         dates_available = [] 
         more_dates = True 
 
-        pages_visited = 0
-        start_time = time.time()
-
         while more_dates:
             next_month_to_check, next_year_to_check = pd.to_datetime(next_date_to_check).dt.month_name.str.lower(), int(pd.to_datetime(next_date_to_check).dt.year)
-            next_season_year = next_year_to_check if next_month_to_check in ["january", "february", "march", "april", "may", "june"] else next_year_to_check + 1
-            
-            pages_visited, start_time = wait_for_rate_limit(page_limit, pages_visited, start_time)
-            
-            next_month_status_code = requests.get(f"https://www.basketball-reference.com/leagues/NBA_{next_year_to_check}_games-{next_month_to_check}.html")
-            pages_visited += 1
-
-            pages_visited, start_time = wait_for_rate_limit(page_limit, pages_visited, start_time)
-
-            next_season_status_code = requests.get(f"https://www.basketball-reference.com/leagues/NBA_{next_season_year}_games-october.html")
-            pages_visited += 1
+            next_season_year = next_year_to_check if next_month_to_check in ["january", "february", "march", "april", "may", "june"] else next_year_to_check + 1            
+            next_month_status_code = fetch_response_status_code(schedule_url(next_year_to_check, next_month_to_check), page_limit=page_limit)
+            next_season_status_code = fetch_response_status_code(schedule_url(next_season_year, "october"), page_limit=page_limit)
 
             if next_month_status_code != 200 and next_season_status_code != 200: 
                 more_dates = False 
@@ -156,7 +135,7 @@ def get_schedules_not_already_existing(years):
 
     return [year for year in years if year not in years_existing]
 
-def game_schedule_history_etl(years, page_limit):
+def run(years, page_limit):
     years = get_schedules_not_already_existing(years)
     years = years + check_for_schedules_to_scrape(page_limit=15)
 
@@ -166,6 +145,3 @@ def game_schedule_history_etl(years, page_limit):
         move_game_schedule_to_database(df)
     else:
         print("All years are accounted for.")
-
-if __name__ == "__main__":
-    game_schedule_history_etl(list(range(1947, 2027)), 15)

@@ -1,27 +1,25 @@
 import pandas as pd 
-import requests 
 import numpy as np
 import sys
 from pathlib import Path 
 from bs4 import BeautifulSoup, Comment
 from io import StringIO 
 from sqlalchemy import text 
-from urllib.error import HTTPError
-import time 
 import numpy as np 
 
 project_root = str(Path(__file__).resolve().parents[1])
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
     
-from utils.rate_limit import wait_for_rate_limit
+from crawler.fetch import fetch_response_content
+from crawler.urls import standings_url
 from utils.database import get_nba_db_engine
 
-def get_BAA_year_expanded_standings(year):
-    url = f"https://www.basketball-reference.com/leagues/BAA_{year}_standings.html"
-    r = requests.get(url)
+def get_BAA_year_expanded_standings(year, page_limit):
+    url = standings_url(year)
+    content = fetch_response_content(url, page_limit=page_limit)
 
-    soup = BeautifulSoup(r.content, "html.parser")
+    soup = BeautifulSoup(content, "html.parser")
     wrapper = soup.find("div", id="all_expanded_standings")
 
     table_comment = wrapper.find(
@@ -102,11 +100,11 @@ def get_BAA_year_expanded_standings(year):
 
     return standings_df
 
-def get_NBA1950_year_expanded_standings(year):
-    url = f"https://www.basketball-reference.com/leagues/NBA_{year}_standings.html"
-    r = requests.get(url)
+def get_NBA1950_year_expanded_standings(year, page_limit):
+    url = standings_url(year)
+    content = fetch_response_content(url, page_limit=page_limit)
 
-    soup = BeautifulSoup(r.content, "html.parser")
+    soup = BeautifulSoup(content, "html.parser")
     wrapper = soup.find("div", id="all_expanded_standings")
 
     table_comment = wrapper.find(
@@ -168,14 +166,11 @@ def get_NBA1950_year_expanded_standings(year):
 
     return standings_df
 
-def get_NBA1951_1970_year_expanded_standings(year):
-    url = f"https://www.basketball-reference.com/leagues/NBA_{year}_standings.html"
-    r = requests.get(url)
-
-    if r.status_code != 200:
-        raise ValueError("Got rate limited.")
+def get_NBA1951_1970_year_expanded_standings(year, page_limit):
+    url = standings_url(year)
+    content = fetch_response_content(url, page_limit=page_limit)
     
-    soup = BeautifulSoup(r.content, "html.parser")
+    soup = BeautifulSoup(content, "html.parser")
     wrapper = soup.find("div", id="all_expanded_standings")
 
     table_comment = wrapper.find(
@@ -329,11 +324,11 @@ def get_NBA1951_1970_year_expanded_standings(year):
 
     return standings_df
 
-def get_NBA1971_2004_year_expanded_standings(year):
-    url = f"https://www.basketball-reference.com/leagues/NBA_{year}_standings.html"
-    r = requests.get(url)
+def get_NBA1971_2004_year_expanded_standings(year, page_limit):
+    url = standings_url(year)
+    content = fetch_response_content(url, page_limit=page_limit)
 
-    soup = BeautifulSoup(r.content, "html.parser")
+    soup = BeautifulSoup(content, "html.parser")
     wrapper = soup.find("div", id="all_expanded_standings")
 
     table_comment = wrapper.find(
@@ -742,11 +737,11 @@ def get_NBA1971_2004_year_expanded_standings(year):
 
     return standings_df
 
-def get_NBA_after_2004_year_expanded_standings(year):
-    url = f"https://www.basketball-reference.com/leagues/NBA_{year}_standings.html"
-    r = requests.get(url)
+def get_NBA_after_2004_year_expanded_standings(year, page_limit):
+    url = standings_url(year)
+    content = fetch_response_content(url, page_limit=page_limit)
 
-    soup = BeautifulSoup(r.content, "html.parser")
+    soup = BeautifulSoup(content, "html.parser")
     wrapper = soup.find("div", id="all_expanded_standings")
 
     table_comment = wrapper.find(
@@ -833,11 +828,11 @@ def get_NBA_after_2004_year_expanded_standings(year):
 
     return standings_df 
 
-def get_year_team_vs_team(year):
-    url = f"https://www.basketball-reference.com/leagues/{"BAA" if year < 1950 else "NBA"}_{year}_standings.html"
-    r = requests.get(url)
+def get_year_team_vs_team(year, page_limit):
+    url = standings_url(year)
+    content = fetch_response_content(url, page_limit=page_limit)
 
-    soup = BeautifulSoup(r.content, "html.parser")
+    soup = BeautifulSoup(content, "html.parser")
 
     wrapper = soup.find("div", id="all_team_vs_team")
 
@@ -1183,38 +1178,26 @@ def get_conference_rank(expanded_standings, team_vs_team):
                     
     return df
 
-def get_year_standings(year, page_limit, pages_visited=0, start_time=None):
-    if not start_time: 
-        start_time = time.time() 
-
-    pages_visited, start_time = wait_for_rate_limit(page_limit, pages_visited, start_time)
-    
+def get_year_standings(year, page_limit):    
     expanded_standings = None
     if year < 1950:
-        expanded_standings = get_BAA_year_expanded_standings(year)
+        expanded_standings = get_BAA_year_expanded_standings(year, page_limit)
     elif year == 1950:
-        expanded_standings = get_NBA1950_year_expanded_standings(year)
+        expanded_standings = get_NBA1950_year_expanded_standings(year, page_limit)
     elif year <= 1970:
-        expanded_standings = get_NBA1951_1970_year_expanded_standings(year)
+        expanded_standings = get_NBA1951_1970_year_expanded_standings(year, page_limit)
     elif year <= 2004:
-        expanded_standings = get_NBA1971_2004_year_expanded_standings(year)
+        expanded_standings = get_NBA1971_2004_year_expanded_standings(year, page_limit)
     else:
-        expanded_standings = get_NBA_after_2004_year_expanded_standings(year)
-
-    pages_visited += 1
-
-    pages_visited, start_time = wait_for_rate_limit(page_limit, pages_visited, start_time)
-
-    team_vs_team, pivoted_team_vs_team = get_year_team_vs_team(year)
-
-    pages_visited += 1
+        expanded_standings = get_NBA_after_2004_year_expanded_standings(year, page_limit)
+    team_vs_team, pivoted_team_vs_team = get_year_team_vs_team(year, page_limit)
 
     if year >= 1971:
         expanded_standings = get_conference_rank(expanded_standings, team_vs_team)
 
     print(f"Added standings history for {year}")
 
-    return expanded_standings, pivoted_team_vs_team, pages_visited, start_time 
+    return expanded_standings, pivoted_team_vs_team
 
 def get_standings_not_already_existing(years):
     engine = get_nba_db_engine()
@@ -1295,18 +1278,12 @@ def move_standings_to_database(expanded_standings, team_vs_team, year):
 
     print(f"Successfully moved {year} standings to database.")
 
-def standings_history_etl(years, page_limit):
-    pages_visited = 0
-    start_time = time.time()
-
+def run(years, page_limit):
     years = get_standings_not_already_existing(years)
 
     if years:
         for year in years:
-            expanded_standings, pivoted_team_vs_team, pages_visited, start_time = get_year_standings(year, 15, pages_visited, start_time)
+            expanded_standings, pivoted_team_vs_team = get_year_standings(year, page_limit)
             move_standings_to_database(expanded_standings, pivoted_team_vs_team, year)
     else:
         print("All years are accounted for.")
-
-if __name__ == "__main__": 
-    standings_history_etl(list(range(1947, 2027)), 15)

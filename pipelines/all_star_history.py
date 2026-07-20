@@ -1,23 +1,22 @@
 import pandas as pd
-import requests
 import numpy as np 
 from bs4 import BeautifulSoup, Comment
 from pathlib import Path
-import time 
 import sys
 
 project_root = str(Path(__file__).resolve().parents[1])
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
     
-from utils.rate_limit import wait_for_rate_limit
+from crawler.fetch import fetch_response_content
+from crawler.urls import league_page_subsection_url
 from utils.database import get_nba_db_engine
 
-def get_year_all_stars(year):
-    url = f"https://www.basketball-reference.com/leagues/{"NBA" if year >= 1950 else "BAA"}_{year}.html#all_all_star_game_rosters"
-    r = requests.get(url)
+def get_year_all_stars(year, page_limit):
+    url = league_page_subsection_url(year, "all_star_game_rosters")
+    content = fetch_response_content(url, page_limit=page_limit)
 
-    soup = BeautifulSoup(r.content, "html.parser")
+    soup = BeautifulSoup(content, "html.parser")
     wrapper = soup.find("div", id="all_all_star_game_rosters")
 
     if not wrapper:
@@ -50,14 +49,9 @@ def get_year_all_stars(year):
     return all_stars 
 
 def get_selected_years_all_stars(years, page_limit):
-    start_time = time.time()
-    pages_visited = 0
-
     all_stars = pd.DataFrame()
     for year in years:
-        pages_visited, start_time = wait_for_rate_limit(page_limit, pages_visited, start_time)
-
-        year_all_stars = get_year_all_stars(year)
+        year_all_stars = get_year_all_stars(year, page_limit)
 
         if year_all_stars:
             year_df = pd.DataFrame({"player" : year_all_stars})
@@ -69,8 +63,6 @@ def get_selected_years_all_stars(years, page_limit):
 
         else:
             print(f"No all-star history for year: {year}")
-
-        pages_visited += 1
         
     return all_stars 
 
@@ -86,9 +78,6 @@ def move_all_stars_to_database(all_stars):
 
     print("Successfully moved to database")
 
-def all_star_etl(years, page_limit):
+def run(years, page_limit):
     all_stars = get_selected_years_all_stars(years, page_limit)
     move_all_stars_to_database(all_stars)
-
-if __name__ == "__main__":
-    all_star_etl(list(range(1947, 2027)), 15)

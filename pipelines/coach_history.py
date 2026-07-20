@@ -1,5 +1,4 @@
 import pandas as pd 
-import time 
 import sys
 from pathlib import Path 
 
@@ -7,13 +6,14 @@ project_root = str(Path(__file__).resolve().parents[1])
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
     
-from utils.rate_limit import wait_for_rate_limit
+from crawler.fetch import read_html
+from crawler.urls import coaches_url
 from utils.database import get_nba_db_engine
 
-def get_year_coaches(year):
-    url = f"https://www.basketball-reference.com/leagues/{"NBA" if year >= 1950 else "BAA"}_{year}_coaches.html"
+def get_year_coaches(year, page_limit):
+    url = coaches_url(year)
 
-    raw_df = pd.read_html(url, attrs={"id" : f"{"NBA" if year >= 1950 else "BAA"}_coaches"})[0]
+    raw_df = read_html(url, page_limit=page_limit, attrs={"id" : f"{"NBA" if year >= 1950 else "BAA"}_coaches"})[0]
     raw_df.columns = raw_df.columns.to_flat_index().map('_'.join)
 
     col_names = [
@@ -39,18 +39,11 @@ def get_year_coaches(year):
     return raw_df 
 
 def get_selected_years_coaches(years, page_limit):
-    start_time = time.time()
-    pages_visited = 0 
-
     coaches = pd.DataFrame() 
 
     for year in years:
-        pages_visited, start_time = wait_for_rate_limit(page_limit, pages_visited, start_time)
-
-        year_coaches = get_year_coaches(year)
+        year_coaches = get_year_coaches(year, page_limit)
         coaches = pd.concat([coaches, year_coaches], axis=0)
-
-        pages_visited += 1
         print(f"Coaches history added for year: {year}")
 
     return coaches
@@ -67,9 +60,6 @@ def move_coaches_history_to_database(coaches):
 
     print("Successfully moved to database")
 
-def coaches_history_etl(years, page_limit):
+def run(years, page_limit):
     coaches = get_selected_years_coaches(years, page_limit)
     move_coaches_history_to_database(coaches)
-
-if __name__ == "__main__":
-    coaches_history_etl(list(range(1947, 2027)), 15)

@@ -1,40 +1,39 @@
 import pandas as pd 
-import requests
 import sys
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from pathlib import Path 
-import time 
 
 project_root = str(Path(__file__).resolve().parents[1])
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from utils.rate_limit import wait_for_rate_limit
+from crawler.fetch import fetch_response_status_code, read_html
+from crawler.urls import player_stats_url
 from utils.database import get_nba_db_engine
 from utils.text_cleaning import remove_accents
 
-def get_year_regular_player_pg_stats(year, season_type):
-    url = f"https://www.basketball-reference.com/leagues/{"NBA" if year >= 1950 else "BAA"}_{year}_per_game.html"
+def get_year_regular_player_pg_stats(year, season_type, page_limit):
+    url = player_stats_url(year, "per_game")
 
-    df = pd.read_html(url, attrs={"id" : "per_game_stats" + ("" if season_type == "regular" else "_post")})[0]
+    df = read_html(url, page_limit=page_limit, attrs={"id" : "per_game_stats" + ("" if season_type == "regular" else "_post")})[0]
     df["Player"] = df["Player"].apply(remove_accents)
     df = df.drop(columns=["Rk", "Awards"])
     df = df.loc[df.Team.ne("2TM"), :]
 
     return df
 
-def get_year_advanced_player_pg_stats(year, season_type):
-    url = f"https://www.basketball-reference.com/leagues/{"NBA" if year >= 1950 else "BAA"}_{year}_advanced.html"
+def get_year_advanced_player_pg_stats(year, season_type, page_limit):
+    url = player_stats_url(year, "advanced")
 
-    df = pd.read_html(url, attrs={"id" : "advanced" + ("" if season_type == "regular" else "_post")})[0]
+    df = read_html(url, page_limit=page_limit, attrs={"id" : "advanced" + ("" if season_type == "regular" else "_post")})[0]
     df["Player"] = df["Player"].apply(remove_accents)
     df = df.drop(columns=["Rk", "Awards"])
     df = df.loc[df.Team.ne("2TM"), :]
 
     return df 
 
-def check_for_player_pg_stats_to_scrape(stat_type, season_type, page_limit, start_time = None, pages_visited = 0):
+def check_for_player_pg_stats_to_scrape(stat_type, season_type, page_limit):
     engine = get_nba_db_engine()
 
     try:
@@ -55,21 +54,19 @@ def check_for_player_pg_stats_to_scrape(stat_type, season_type, page_limit, star
 
     start_of_new_years = next_year_to_check = int(last_year_in_db) + 1
     
-    if start_time is None: 
-        start_time = time.time()
-
     while True:
-        pages_visited, start_time = wait_for_rate_limit(page_limit, pages_visited, start_time)
-        league = "NBA" if next_year_to_check >= 1950 else "BAA"
-        response = requests.get(f"https://www.basketball-reference.com/leagues/{league}_{next_year_to_check}_{"per_game" if stat_type == "regular" else "advanced"}.html")
-        pages_visited += 1
+        status_code = fetch_response_status_code(
+            player_stats_url(next_year_to_check, stat_type),
+            raise_for_status=False,
+            page_limit=page_limit
+        )
 
-        if response.status_code != 200:
+        if status_code != 200:
             break
 
         next_year_to_check += 1
 
-    return list(range(start_of_new_years, next_year_to_check)), pages_visited, start_time
+    return list(range(start_of_new_years, next_year_to_check))
 
 def get_player_pg_stats_not_already_existing(stat_type, season_type, years):
     engine = get_nba_db_engine()
@@ -89,24 +86,17 @@ def get_player_pg_stats_not_already_existing(stat_type, season_type, years):
 
     return [year for year in years if year not in years_existing]
 
-def get_selected_years_player_pg_stats(years, page_limit, stat_type, season_type, pages_visited=0, start_time=None):
-    if start_time is None:
-        start_time = time.time() 
-
+def get_selected_years_player_pg_stats(years, page_limit, stat_type, season_type):
     df = pd.DataFrame()
     for year in years:
-        pages_visited, start_time = wait_for_rate_limit(page_limit, pages_visited, start_time)
-
         if year < 1947:
             print(f"Year is invalid. Skipping {year}...")
             continue 
 
-        if stat_type == "regular":
-            year_df = get_year_regular_player_pg_stats(year, season_type)
+        if stat_type == "per_game":
+            year_df = get_year_regular_player_pg_stats(year, season_type, page_limit)
         else:
-            year_df = get_year_advanced_player_pg_stats(year, season_type)
-
-        pages_visited += 1
+            year_df = get_year_advanced_player_pg_stats(year, season_type, page_limit)
 
         year_df["Year"] = year 
 
@@ -114,7 +104,7 @@ def get_selected_years_player_pg_stats(years, page_limit, stat_type, season_type
 
         print(f"Player {stat_type} {season_type} per-game stats added for year: {year}")
 
-    return df, pages_visited, start_time
+    return df
 
 def move_player_pg_stats_to_database(player_pg_stats, stat_type, season_type):
     engine = get_nba_db_engine()
@@ -134,37 +124,28 @@ def move_player_pg_stats_to_database(player_pg_stats, stat_type, season_type):
 
     print("Successfully moved to database.")
 
-def player_pg_stats_etl(years, page_limit):
+def run(years, page_limit):
     requested_years = years
-    pages_visited = 0
-    start_time = None
 
-    for stat_type in ["regular", "advanced"]:
+    for stat_type in ["per_game", "advanced"]:
         for season_type in ["regular", "playoffs"]:
             years = get_player_pg_stats_not_already_existing(stat_type, season_type, requested_years)
-            new_years, pages_visited, start_time = check_for_player_pg_stats_to_scrape(
+            new_years = check_for_player_pg_stats_to_scrape(
                 stat_type,
                 season_type,
-                page_limit,
-                start_time=start_time,
-                pages_visited=pages_visited
+                page_limit
             )
             years += new_years
             years = sorted(set(years))
 
             if years:
                 print(f"Getting {stat_type} player {season_type} per-game stats for years: {', '.join([str(i) for i in years])}")
-                df, pages_visited, start_time = get_selected_years_player_pg_stats(
+                df = get_selected_years_player_pg_stats(
                     years,
                     page_limit,
                     stat_type,
-                    season_type,
-                    pages_visited=pages_visited,
-                    start_time=start_time
+                    season_type
                 )
                 move_player_pg_stats_to_database(df, stat_type, season_type)
             else:
                 print(f"All {stat_type} player {season_type} per-game stats years are accounted for.")
-
-if __name__ == "__main__":
-    player_pg_stats_etl(list(range(1947, 2027)), 15)

@@ -6,16 +6,18 @@ project_root = str(Path(__file__).resolve().parents[1])
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
+from crawler.fetch import read_html
+from crawler.urls import all_teams_url
 from utils.database import get_nba_db_engine
 
-def move_all_team_history_to_database():
-    url = "https://www.basketball-reference.com/teams/"
+def run():
+    url = all_teams_url()
 
-    active_franchises = pd.read_html(url, attrs={"id" : "teams_active"})[0]
+    active_franchises = read_html(url, attrs={"id" : "teams_active"})[0]
     active_franchises["From"] = (active_franchises["From"].str[:2] + active_franchises["From"].str[-2:]).astype("int")
     active_franchises["To"] = (active_franchises["To"].str[:2] + active_franchises["To"].str[-2:]).astype("int")
 
-    defunct_franchises = pd.read_html(url, attrs={"id" : "teams_defunct"})[0]
+    defunct_franchises = read_html(url, attrs={"id" : "teams_defunct"})[0]
     defunct_franchises["From"] = (defunct_franchises["From"].str[:2] + defunct_franchises["From"].str[-2:]).astype("int")
     defunct_franchises["To"] = (defunct_franchises["To"].str[:2] + defunct_franchises["To"].str[-2:]).astype("int")
 
@@ -51,6 +53,3 @@ def move_all_team_history_to_database():
     )
 
     print("Successfully moved to database.")
-
-if __name__ == "__main__":
-    move_all_team_history_to_database()

@@ -1,18 +1,16 @@
-import requests
 from bs4 import BeautifulSoup, Comment
 import pandas as pd 
 import numpy as np 
 from io import StringIO 
-import time 
 import sys
-from sqlalchemy import text 
 from pathlib import Path 
 
 project_root = str(Path(__file__).resolve().parents[1])
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
     
-from utils.rate_limit import wait_for_rate_limit
+from crawler.fetch import fetch_response_content
+from crawler.urls import league_page_subsection_url
 from utils.database import get_nba_db_engine
 
 def get_element_from_comment(soup, wrapper_id, element_type, element_id):
@@ -138,13 +136,13 @@ def get_year_in_season_tournament_all_tournament_team(soup):
 
     return pd.DataFrame(data)
 
-def get_year_eos_awards(year):
+def get_year_eos_awards(year, page_limit):
     data = {"player" : [], "accolade" : []}
 
-    url = f"https://www.basketball-reference.com/leagues/{"NBA" if year >= 1950 else "BAA"}_{year}.html#all_all_awards"
-    r = requests.get(url)
+    url = league_page_subsection_url(year, "all_awards")
+    content = fetch_response_content(url, page_limit=page_limit)
 
-    soup = BeautifulSoup(r.content, "html.parser")
+    soup = BeautifulSoup(content, "html.parser")
     
     league_awards = get_year_league_awards(soup)
     all_nba = get_year_all_nba(soup)
@@ -155,12 +153,6 @@ def get_year_eos_awards(year):
     return league_awards, all_nba, all_defensive, all_rookie, all_tourney
 
 def get_selected_years_eos_awards(years, page_limit):
-    rate_limiting = len(years) >= page_limit
-
-    if rate_limiting:
-        pages_visited = 0
-        start_time = time.time() 
-
     all_year_dfs = {
         "league_awards" : pd.DataFrame(),
         "all_nba" : pd.DataFrame(),
@@ -170,17 +162,11 @@ def get_selected_years_eos_awards(years, page_limit):
     }
 
     for year in years:
-        if rate_limiting:
-            pages_visited, start_time = wait_for_rate_limit(page_limit, pages_visited, start_time)
-
         if year < 1947:
             print(f"Year is invalid. Skipping {year}...")
             continue 
 
-        results = get_year_eos_awards(year)
-
-        if rate_limiting:
-            pages_visited += 1
+        results = get_year_eos_awards(year, page_limit)
 
         for name, result_set in zip(all_year_dfs, results):
             
@@ -243,11 +229,10 @@ def move_eos_awards_to_database(league_awards_df, all_nba_df, all_defensive_df, 
     print("Successfully moved to database.")
 
 
-def eos_awards_etl(years, page_limit):
+def run(years, page_limit):
     if years:
         print(f"Getting end of season awards history for years: {', '.join([str(i) for i in years])}")
         league_awards_df, alL_nba_df, all_defensive_df, all_rookie_df, all_tourney_df = get_selected_years_eos_awards(years, page_limit)
         move_eos_awards_to_database(league_awards_df, alL_nba_df, all_defensive_df, all_rookie_df, all_tourney_df)
-
-if __name__ == "__main__":
-    eos_awards_etl(list(range(1947, 2027)), 15)
+    else:
+        print("All years are accounted for.")
