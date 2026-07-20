@@ -4,27 +4,16 @@ from sqlalchemy.exc import SQLAlchemyError
 from src.hoophub.crawler.fetch import fetch_response_status_code, read_html
 from src.hoophub.crawler.urls import player_stats_url
 from src.hoophub.utils.database import get_nba_db_engine
-from src.hoophub.utils.text_cleaning import remove_accents
+from hoophub.parsers.player_stats import parse_player_stats
 
-def get_year_regular_player_pg_stats(year, season_type, page_limit):
+def get_year_player_pg_stats(year, stat_type, season_type, page_limit):
     url = player_stats_url(year, "per_game")
+    table_id = stat_type if stat_type == "advanced" else "per_game_stats"
+    table_id = table_id if season_type == "regular" else table_id + "_post"
 
-    df = read_html(url, page_limit=page_limit, attrs={"id" : "per_game_stats" + ("" if season_type == "regular" else "_post")})[0]
-    df["Player"] = df["Player"].apply(remove_accents)
-    df = df.drop(columns=["Rk", "Awards"])
-    df = df.loc[df.Team.ne("2TM"), :]
-
+    df = read_html(url, page_limit=page_limit, attrs={"id" : table_id})[0]
+    df = parse_player_stats(df, year)
     return df
-
-def get_year_advanced_player_pg_stats(year, season_type, page_limit):
-    url = player_stats_url(year, "advanced")
-
-    df = read_html(url, page_limit=page_limit, attrs={"id" : "advanced" + ("" if season_type == "regular" else "_post")})[0]
-    df["Player"] = df["Player"].apply(remove_accents)
-    df = df.drop(columns=["Rk", "Awards"])
-    df = df.loc[df.Team.ne("2TM"), :]
-
-    return df 
 
 def check_for_player_pg_stats_to_scrape(stat_type, season_type, page_limit):
     engine = get_nba_db_engine()
@@ -80,24 +69,12 @@ def get_player_pg_stats_not_already_existing(stat_type, season_type, years):
     return [year for year in years if year not in years_existing]
 
 def get_selected_years_player_pg_stats(years, page_limit, stat_type, season_type):
-    df = pd.DataFrame()
+    stats = []
     for year in years:
-        if year < 1947:
-            print(f"Year is invalid. Skipping {year}...")
-            continue 
-
-        if stat_type == "per_game":
-            year_df = get_year_regular_player_pg_stats(year, season_type, page_limit)
-        else:
-            year_df = get_year_advanced_player_pg_stats(year, season_type, page_limit)
-
-        year_df["Year"] = year 
-
-        df = pd.concat([df, year_df], axis=0)
-
+        year_df = get_year_player_pg_stats(year, stat_type, season_type, page_limit)  
+        stats.append(year_df)
         print(f"Player {stat_type} {season_type} per-game stats added for year: {year}")
-
-    return df
+    return pd.concat(stats, axis=0, ignore_index=True) if stats else pd.DataFrame()
 
 def move_player_pg_stats_to_database(player_pg_stats, stat_type, season_type):
     engine = get_nba_db_engine()

@@ -2,33 +2,15 @@ import pandas as pd
 from src.hoophub.crawler.fetch import read_html
 from src.hoophub.crawler.urls import all_teams_url
 from src.hoophub.utils.database import get_nba_db_engine
+from src.hoophub.parsers.franchises import parse_franchises
 
 def run():
     url = all_teams_url()
 
     active_franchises = read_html(url, attrs={"id" : "teams_active"})[0]
-    active_franchises["From"] = (active_franchises["From"].str[:2] + active_franchises["From"].str[-2:]).astype("int")
-    active_franchises["To"] = (active_franchises["To"].str[:2] + active_franchises["To"].str[-2:]).astype("int")
-
     defunct_franchises = read_html(url, attrs={"id" : "teams_defunct"})[0]
-    defunct_franchises["From"] = (defunct_franchises["From"].str[:2] + defunct_franchises["From"].str[-2:]).astype("int")
-    defunct_franchises["To"] = (defunct_franchises["To"].str[:2] + defunct_franchises["To"].str[-2:]).astype("int")
+    team_histories, season_members = parse_franchises(active_franchises, defunct_franchises)
 
-    team_histories = pd.concat([active_franchises, defunct_franchises], axis=0)
-    team_histories = team_histories[
-        ~(
-            team_histories.groupby("Franchise")["Yrs"].transform("size").gt(1)
-            & team_histories["Yrs"].eq(team_histories.groupby("Franchise")["Yrs"].transform("max"))
-        )
-    ].copy()
-
-    season_members = (
-        team_histories.assign(Year=team_histories.apply(lambda r: range(int(r["From"]), int(r["To"]) + 1), axis=1))
-        .explode("Year", ignore_index=True)
-    )
-
-    season_members["Year"] = season_members["Year"].astype(int)
-    season_members = season_members[["Franchise", "Year"]]
     engine = get_nba_db_engine()
 
     team_histories.to_sql(

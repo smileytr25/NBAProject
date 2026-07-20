@@ -4,16 +4,13 @@ from sqlalchemy.exc import SQLAlchemyError
 from src.hoophub.crawler.fetch import fetch_response_status_code, read_html
 from src.hoophub.crawler.urls import player_stats_url
 from src.hoophub.utils.database import get_nba_db_engine
-from src.hoophub.utils.text_cleaning import remove_accents
+from hoophub.parsers.player_stats import parse_player_stats
 
 def get_year_player_total_stats(year, season_type, page_limit):
     url = player_stats_url(year, "totals")
-
-    df = read_html(url, page_limit=page_limit, attrs={"id" : "totals_stats"})[0]
-    df["Player"] = df["Player"].apply(remove_accents)
-    df = df.drop(columns=["Rk", "Awards"])
-    df = df.loc[df.Team.ne("2TM"), :]
-
+    table_id = "totals_stats" + ("" if season_type == "regular" else "_post")
+    df = read_html(url, page_limit=page_limit, attrs={"id" : table_id})[0]
+    df = parse_player_stats(df)
     return df
 
 def check_for_player_total_stats_to_scrape(season_type, page_limit):
@@ -65,21 +62,12 @@ def get_player_total_stats_not_already_existing(season_type, years):
     return [year for year in years if year not in years_existing]
 
 def get_selected_years_player_total_stats(years, page_limit, season_type):
-    df = pd.DataFrame()
-    for year in years:
-        if year < 1947:
-            print(f"Year is invalid. Skipping {year}...")
-            continue 
-
+    stats = []
+    for year in years: 
         year_df = get_year_player_total_stats(year, season_type, page_limit)
-
-        year_df["Year"] = year
-
-        df = pd.concat([df, year_df], axis=0)
-
+        stats.append(year_df)
         print(f"Player {season_type} total stats added for year: {year}")
-
-    return df
+    return pd.concat(stats, axis=0, ignore_index=True) if stats else pd.DataFrame()
 
 def move_player_total_stats_to_database(player_total_stats, season_type):
     engine = get_nba_db_engine()
@@ -103,8 +91,7 @@ def run(years, page_limit):
     for season_type in ["regular", "playoffs"]:
         years = get_player_total_stats_not_already_existing(season_type, requested_years)
         new_years = check_for_player_total_stats_to_scrape(season_type, page_limit)
-        years += new_years
-        years = sorted(set(years))
+        years = list(set(years + new_years))
 
         if years:
             print(f"Getting player {season_type} total stats for years: {', '.join([str(i) for i in years])}")

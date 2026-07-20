@@ -1,23 +1,15 @@
 import pandas as pd
 from sqlalchemy import text 
 from sqlalchemy.exc import SQLAlchemyError
-from pathlib import Path
-    
 from src.hoophub.crawler.fetch import fetch_response_status_code, read_html
 from src.hoophub.crawler.urls import draft_url
 from src.hoophub.utils.database import get_nba_db_engine
+from src.hoophub.parsers.draft import parse_draft
 
 def get_year_draft_results(year, page_limit):
     url = draft_url(year)
-
     df = read_html(url, page_limit=page_limit, attrs={"id" : "stats"})[0]
-    df.columns = [i[1] for i in df.columns.to_flat_index()]
-
-    df = df[["Rk", "Pk", "Tm", "Player", "College"]].copy()
-    df["Rk"] = pd.to_numeric(df["Rk"], errors="coerce")
-    df = df[df.Rk.notna() & df.Player.notna()]
-    df["College"] = df["College"].fillna("None")
-
+    df = parse_draft(df)
     return df
 
 def check_for_drafts_to_scrape(page_limit):
@@ -60,39 +52,27 @@ def get_drafts_not_already_existing(years):
     return [year for year in years if year not in years_existing]
         
 def get_selected_years_draft_results(years, page_limit):
-    df = pd.DataFrame()
+    drafts = []
     for year in years:
-        if year < 1947:
-            print(f"Year is invalid. Skipping {year}...")
-            continue 
-
         year_df = get_year_draft_results(year, page_limit)
-
-        year_df["Year"] = year
-        
-        df = pd.concat([df, year_df], axis=0)
-
+        drafts.append(year_df)
         print(f"Draft history added for year: {year}")
-
-    return df
+    return pd.concat(drafts, axis=0, ignore_index=True) if drafts else pd.DataFrame()
 
 def move_draft_history_to_database(draft_history):
     engine = get_nba_db_engine()
-    
     draft_history.to_sql(
         "draft_history",
         engine,
         if_exists="append",
         index=False
     )
-
     print("Successfully moved to database.")
 
 def run(years, page_limit):
     years = get_drafts_not_already_existing(years)
     new_years = check_for_drafts_to_scrape(page_limit)
-    years += new_years
-    years = list(set(years))
+    years = list(set(years + new_years))
 
     if years:
         print(f"Getting draft history for years: {', '.join([str(i) for i in years])}")

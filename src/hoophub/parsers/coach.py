@@ -1,7 +1,7 @@
 from src.hoophub.utils.database import get_nba_db_engine
 import pandas as pd 
 
-def parse_coaches(raw_df, year):
+def parse_coaches(raw_df: pd.DataFrame, year: int) -> pd.DataFrame:
     raw_df.columns = raw_df.columns.to_flat_index().map('_'.join)
     col_names = [
         "coach", "team", 'ut0', 'with_franchise_seasons', 'overall_seasons', 'ut1', 'current_regular_season_games', 
