@@ -1,10 +1,8 @@
-from bs4 import BeautifulSoup, Comment
 import pandas as pd 
-from io import StringIO 
 from src.hoophub.crawler.fetch import fetch_response_content
 from src.hoophub.crawler.urls import league_page_subsection_url
-from src.hoophub.utils.database import get_nba_db_engine
 from src.hoophub.parsers.eos_awards import parse_eos_awards
+from src.hoophub.repository.save import save_awards_to_db 
 
 def get_year_eos_awards(year, page_limit):
     url = league_page_subsection_url(year, "all_awards")
@@ -35,51 +33,10 @@ def get_selected_years_eos_awards(years, page_limit):
 
     return league_awards, all_nba, all_defensive, all_rookie, all_tourney
 
-def move_eos_awards_to_database(league_awards_df, all_nba_df, all_defensive_df, all_rookie_df, all_tourney_df):
-    engine = get_nba_db_engine()
-
-    league_awards_df.to_sql(
-        "league_awards_history",
-        engine,
-        if_exists="append",
-        index=False
-    )
-
-    all_nba_df.to_sql(
-        "all-nba_history",
-        engine,
-        if_exists="append",
-        index=False
-    )
-
-    all_defensive_df.to_sql(
-        "all-defensive_history",
-        engine,
-        if_exists="append",
-        index=False
-    )
-
-    all_rookie_df.to_sql(
-        "all-rookie_history",
-        engine,
-        if_exists="append",
-        index=False
-    )
-
-    all_tourney_df.to_sql(
-        "all-tournament_history",
-        engine,
-        if_exists="append",
-        index=False
-    )
-
-    print("Successfully moved to database.")
-
-
 def run(years, page_limit):
     if years:
         print(f"Getting end of season awards history for years: {', '.join([str(i) for i in years])}")
         league_awards_df, alL_nba_df, all_defensive_df, all_rookie_df, all_tourney_df = get_selected_years_eos_awards(years, page_limit)
-        move_eos_awards_to_database(league_awards_df, alL_nba_df, all_defensive_df, all_rookie_df, all_tourney_df)
+        save_awards_to_db(league_awards_df, alL_nba_df, all_defensive_df, all_rookie_df, all_tourney_df)
     else:
         print("All years are accounted for.")

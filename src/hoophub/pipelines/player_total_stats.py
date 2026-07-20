@@ -3,8 +3,9 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from src.hoophub.crawler.fetch import fetch_response_status_code, read_html
 from src.hoophub.crawler.urls import player_stats_url
-from src.hoophub.utils.database import get_nba_db_engine
-from hoophub.parsers.player_stats import parse_player_stats
+from src.hoophub.repository.engine import get_nba_db_engine
+from src.hoophub.parsers.player_stats import parse_player_stats
+from src.hoophub.repository.save import save_to_db
 
 def get_year_player_total_stats(year, season_type, page_limit):
     url = player_stats_url(year, "totals")
@@ -69,22 +70,6 @@ def get_selected_years_player_total_stats(years, page_limit, season_type):
         print(f"Player {season_type} total stats added for year: {year}")
     return pd.concat(stats, axis=0, ignore_index=True) if stats else pd.DataFrame()
 
-def move_player_total_stats_to_database(player_total_stats, season_type):
-    engine = get_nba_db_engine()
-
-    table_name = "player_total_stats"
-    if season_type == "playoffs":
-        table_name += "_playoffs"
-
-    player_total_stats.to_sql(
-        table_name,
-        engine,
-        if_exists="append",
-        index=False
-    )
-
-    print("Successfully moved to database.")
-
 def run(years, page_limit):
     requested_years = years 
 
@@ -94,12 +79,10 @@ def run(years, page_limit):
         years = list(set(years + new_years))
 
         if years:
-            print(f"Getting player {season_type} total stats for years: {', '.join([str(i) for i in years])}")
-            df = get_selected_years_player_total_stats(
-                years,
-                page_limit,
-                season_type
-            )
-            move_player_total_stats_to_database(df, season_type)
-        else:
-            print("All player {season_type} total stats years are accounted for.")
+            df = get_selected_years_player_total_stats(years, page_limit, season_type)
+            
+            table_name = "player_total_stats"
+            if season_type == "playoffs":
+                table_name += "_playoffs"
+                
+            save_to_db(df, table_name, if_exists="append")

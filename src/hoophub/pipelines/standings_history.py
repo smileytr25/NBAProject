@@ -2,16 +2,9 @@ import pandas as pd
 from sqlalchemy import text 
 from src.hoophub.crawler.fetch import fetch_response_content
 from src.hoophub.crawler.urls import standings_url
-from src.hoophub.utils.database import get_nba_db_engine
-from src.hoophub.parsers.standings import (
-    get_conference_rank,
-    parse_BAA_standings,
-    parse_NBA1950_standings,
-    parse_NBA1951_1970_standings,
-    parse_NBA1971_2004_standings,
-    parse_NBA_after_2004_standings,
-    parse_head_to_head,
-)
+from src.hoophub.repository.engine import get_nba_db_engine
+from src.hoophub.parsers.standings import *
+from src.hoophub.repository.save import save_standings_to_db
 
 def get_BAA_year_expanded_standings(year, page_limit):
     url = standings_url(year)
@@ -85,68 +78,9 @@ def get_standings_not_already_existing(years):
                 pass
     return [year for year in years if year not in years_existing]
 
-def move_standings_to_database(expanded_standings, team_vs_team, year):
-    engine = get_nba_db_engine()
-    after_2004_standings = expanded_standings[expanded_standings.year.ge(2005)]
-    after_1970_standings = expanded_standings[expanded_standings.year.ge(1971) & expanded_standings.year.lt(2005)]
-    after_1950_standings = expanded_standings[expanded_standings.year.ge(1951) & expanded_standings.year.lt(1971)]
-    equal_1950_standings = expanded_standings[expanded_standings.year.eq(1950)]
-    before_1950_standings = expanded_standings[expanded_standings.year.lt(1950)]
-    
-    if len(after_2004_standings):
-        after_2004_standings.to_sql(
-            "standings_history_after_2004",
-            engine,
-            if_exists="append",
-            index=False
-        )
-
-    if len(after_1970_standings):
-        after_1970_standings.to_sql(
-            "standings_history_after_1970_to_2004",
-            engine,
-            if_exists="append",
-            index=False
-        )
-    if len(after_1950_standings):
-        after_1950_standings.to_sql(
-            "standings_history_after_1950_to_1970",
-            engine,
-            if_exists="append",
-            index=False
-        )
-
-    if len(equal_1950_standings):
-        equal_1950_standings.to_sql(
-            "standings_history_1950",
-            engine,
-            if_exists="append",
-            index=False
-        )
-
-    if len(before_1950_standings):
-        before_1950_standings.to_sql(
-            "standings_history_before_1950",
-            engine,
-            if_exists="append",
-            index=False
-        )
-
-    team_vs_team.to_sql(
-        "head_to_head_history",
-        engine,
-        if_exists="append",
-        index=False
-    )
-
-    print(f"Successfully moved {year} standings to database.")
-
 def run(years, page_limit):
     years = get_standings_not_already_existing(years)
-
     if years:
         for year in years:
             expanded_standings, pivoted_team_vs_team = get_year_standings(year, page_limit)
-            move_standings_to_database(expanded_standings, pivoted_team_vs_team, year)
-    else:
-        print("All years are accounted for.")
+            save_standings_to_db(expanded_standings, pivoted_team_vs_team, year)

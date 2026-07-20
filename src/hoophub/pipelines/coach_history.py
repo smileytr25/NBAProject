@@ -1,10 +1,8 @@
 import pandas as pd 
-from pathlib import Path 
-    
 from src.hoophub.crawler.fetch import read_html
 from src.hoophub.crawler.urls import coaches_url
-from src.hoophub.utils.database import get_nba_db_engine
 from src.hoophub.parsers.coach import parse_coaches
+from src.hoophub.repository.save import save_to_db
 
 def get_year_coaches(year, page_limit):
     url = coaches_url(year)
@@ -20,16 +18,8 @@ def get_selected_years_coaches(years, page_limit):
         print(f"Coaches history added for year: {year}")
     return pd.concat(coaches, axis=0, ignore_index=True) if coaches else pd.DataFrame()
 
-def move_coaches_history_to_database(coaches):
-    engine = get_nba_db_engine()
-    coaches.to_sql(
-        "coaches_history",
-        engine,
-        if_exists="append",
-        index=False
-    ) 
-    print("Successfully moved to database")
-
 def run(years, page_limit):
     coaches = get_selected_years_coaches(years, page_limit)
-    move_coaches_history_to_database(coaches)
+    save_to_db(coaches, "coaches_history", if_exists="append")
+
+

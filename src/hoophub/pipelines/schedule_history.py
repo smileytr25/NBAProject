@@ -1,10 +1,10 @@
 from sqlalchemy import text
 import pandas as pd
-from urllib.error import HTTPError
 from src.hoophub.crawler.fetch import fetch_response_status_code, read_html
 from src.hoophub.crawler.urls import schedule_url
-from src.hoophub.utils.database import get_nba_db_engine
+from src.hoophub.repository.engine import get_nba_db_engine
 from src.hoophub.parsers.schedule import parse_schedule
+from src.hoophub.repository.save import save_to_db
 
 def get_month_game_schedule(month, year, page_limit):
     url = schedule_url(year, month)
@@ -34,16 +34,6 @@ def get_selected_years_game_schedule(years, page_limit):
         df = get_year_game_schedule(year, page_limit)
         schedule.append(df)
     return pd.concat(schedule, axis=0, ignore_index=True) if schedule else pd.DataFrame()
-
-def move_game_schedule_to_database(schedule):
-    engine = get_nba_db_engine()
-    schedule.to_sql(
-        "game_schedule_history",
-        engine,
-        if_exists="append",
-        index=False
-    )
-    print("Successfully moved to database.")
 
 def check_for_schedules_to_scrape(page_limit=15):
     engine = get_nba_db_engine()
@@ -89,6 +79,6 @@ def run(years, page_limit):
     if years:
         print(f"Getting game schedule history for years: {', '.join([str(i) for i in years])}")
         df = get_selected_years_game_schedule(years, page_limit)
-        move_game_schedule_to_database(df)
+        save_to_db(df, "game_schedule_history", if_exists="append")
     else:
         print("All years are accounted for.")

@@ -3,8 +3,9 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from src.hoophub.crawler.fetch import fetch_response_status_code, read_html
 from src.hoophub.crawler.urls import draft_url
-from src.hoophub.utils.database import get_nba_db_engine
+from src.hoophub.repository.engine import get_nba_db_engine
 from src.hoophub.parsers.draft import parse_draft
+from src.hoophub.repository.save import save_to_db
 
 def get_year_draft_results(year, page_limit):
     url = draft_url(year)
@@ -59,16 +60,6 @@ def get_selected_years_draft_results(years, page_limit):
         print(f"Draft history added for year: {year}")
     return pd.concat(drafts, axis=0, ignore_index=True) if drafts else pd.DataFrame()
 
-def move_draft_history_to_database(draft_history):
-    engine = get_nba_db_engine()
-    draft_history.to_sql(
-        "draft_history",
-        engine,
-        if_exists="append",
-        index=False
-    )
-    print("Successfully moved to database.")
-
 def run(years, page_limit):
     years = get_drafts_not_already_existing(years)
     new_years = check_for_drafts_to_scrape(page_limit)
@@ -77,6 +68,6 @@ def run(years, page_limit):
     if years:
         print(f"Getting draft history for years: {', '.join([str(i) for i in years])}")
         df = get_selected_years_draft_results(years, page_limit)
-        move_draft_history_to_database(df)
+        save_to_db(df, "draft_history", if_exists="append")
     else:
         print("All years are accounted for.")
