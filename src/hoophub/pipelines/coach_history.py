@@ -7,15 +7,12 @@ from src.hoophub.repository.save import save_to_db
 def get_year_coaches(year, page_limit):
     url = coaches_url(year)
     raw_df = read_html(url, page_limit=page_limit, attrs={"id" : f"{"NBA" if year >= 1950 else "BAA"}_coaches"})[0]
-    year_coaches = parse_coaches(raw_df, year)
-    return year_coaches
+    return parse_coaches(raw_df, year)
 
 def get_selected_years_coaches(years, page_limit):
     coaches = []
     for year in years:
-        year_coaches = get_year_coaches(year, page_limit)
-        coaches.append(year_coaches)
-        print(f"Coaches history added for year: {year}")
+        coaches.append(get_year_coaches(year, page_limit))
     return pd.concat(coaches, axis=0, ignore_index=True) if coaches else pd.DataFrame()
 
 def run(years, page_limit):

@@ -15,7 +15,6 @@ def get_selected_years_all_stars(years, page_limit):
     for year in years:
         year_all_stars = get_year_all_stars(year, page_limit)
         all_stars.append(year_all_stars)
-        print(f"All-star history added for year: {year}")
     return pd.concat(all_stars, axis=0, ignore_index=True) if all_stars else pd.DataFrame()
 
 def run(years, page_limit):
