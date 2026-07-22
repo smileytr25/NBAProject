@@ -1,9 +1,9 @@
 import pandas as pd
-from src.hoophub.crawler.fetch import fetch_response_status_code, read_html
-from src.hoophub.crawler.urls import draft_url
-from src.hoophub.parsers.draft import parse_draft
-from src.hoophub.repository.save import save_to_db
-from src.hoophub.repository.query import query_last_year_in_table, query_existing_years_in_table
+from hoophub.crawler.fetch import fetch_response_status_code, read_html
+from hoophub.crawler.urls import draft_url
+from hoophub.parsers.draft import parse_draft
+from hoophub.repository.save import save_to_db
+from hoophub.repository.query import query_last_year_in_table, query_existing_years_in_table
 
 def get_year_draft_results(year: int, page_limit: int) -> pd.DataFrame:
     return parse_draft(

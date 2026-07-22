@@ -1,6 +1,6 @@
-from src.hoophub.crawler.fetch import fetch_response_content
-from src.hoophub.crawler.urls import standings_url
-from src.hoophub.parsers.standings import (
+from hoophub.crawler.fetch import fetch_response_content
+from hoophub.crawler.urls import standings_url
+from hoophub.parsers.standings import (
     get_conference_rank,
     parse_BAA_standings,
     parse_NBA1950_standings,
@@ -9,8 +9,8 @@ from src.hoophub.parsers.standings import (
     parse_NBA_after_2004_standings,
     parse_head_to_head,
 )
-from src.hoophub.repository.save import save_standings_to_db
-from src.hoophub.repository.query import query_existing_years_in_table
+from hoophub.repository.save import save_standings_to_db
+from hoophub.repository.query import query_existing_years_in_table
 import pandas as pd 
 
 def get_BAA_year_expanded_standings(year: int, page_limit: int) -> pd.DataFrame:

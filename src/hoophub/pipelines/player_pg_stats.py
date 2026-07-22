@@ -1,9 +1,9 @@
 import pandas as pd 
-from src.hoophub.crawler.fetch import fetch_response_status_code, read_html
-from src.hoophub.crawler.urls import player_stats_url
-from src.hoophub.parsers.player_stats import parse_player_stats
-from src.hoophub.repository.save import save_to_db
-from src.hoophub.repository.query import query_last_year_in_table, query_existing_years_in_table
+from hoophub.crawler.fetch import fetch_response_status_code, read_html
+from hoophub.crawler.urls import player_stats_url
+from hoophub.parsers.player_stats import parse_player_stats
+from hoophub.repository.save import save_to_db
+from hoophub.repository.query import query_last_year_in_table, query_existing_years_in_table
 
 def get_year_player_pg_stats(year: int, stat_type: str, season_type: str, page_limit: int) -> pd.DataFrame:
     url = player_stats_url(year, "per_game")

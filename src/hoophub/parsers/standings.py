@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup, Comment 
 from io import StringIO 
 import pandas as pd 
-from src.hoophub.utils.constants import BAA_DIVISION_MAPPING, NBA1951_1970_DIVISION_MAPPING, NBA1971_2004_CONF_MAPPING, NBA_AFTER_2004_CONF_MAPPING
+from hoophub.utils.constants import BAA_DIVISION_MAPPING, NBA1951_1970_DIVISION_MAPPING, NBA1971_2004_CONF_MAPPING, NBA_AFTER_2004_CONF_MAPPING
 
 def parse_BAA_standings(content: bytes, year: int):
     soup = BeautifulSoup(content, "html.parser")

@@ -1,8 +1,8 @@
 import pandas as pd 
-from src.hoophub.crawler.fetch import read_html
-from src.hoophub.crawler.urls import coaches_url
-from src.hoophub.parsers.coach import parse_coaches
-from src.hoophub.repository.save import save_to_db
+from hoophub.crawler.fetch import read_html
+from hoophub.crawler.urls import coaches_url
+from hoophub.parsers.coach import parse_coaches
+from hoophub.repository.save import save_to_db
 
 def get_year_coaches(year: int, page_limit: int) -> pd.DataFrame:
     url = coaches_url(year)

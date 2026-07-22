@@ -1,4 +1,4 @@
-from src.hoophub.utils.text_cleaning import remove_accents
+from hoophub.utils.text_cleaning import remove_accents
 import pandas as pd 
 
 def parse_player_stats(df: pd.DataFrame, year: int):

@@ -1,17 +1,27 @@
 import atexit
 import json
+import os
 import signal
 import time
 import uuid 
 from pathlib import Path
 from types import FrameType
-from typing import Optional
+from typing import Callable, Optional
 
-STATE_PATH = Path(".crawler_rate_limit.json")
+STATE_PATH = Path(
+    os.getenv(
+        "HOOPHUB_RATE_LIMIT_STATE",
+        Path.home() / ".cache" / "hoophub" / "crawler_rate_limit.json",
+    )
+)
+SAFETY_BUFFER_SECONDS = 1.0
 
 
 class Stack():
     def __init__(self, page_limit: int, dropoff_time: int):
+        if page_limit < 1:
+            raise ValueError("page_limit must be at least 1")
+
         self.capacity = page_limit 
         self.dropoff_time = dropoff_time
         self.stack = {}
@@ -23,7 +33,7 @@ class Stack():
     def size(self):
         return len(self.stack)
     
-    def add(self):
+    def add(self, progress_writer: Callable[[str], None] | None = None):
         while True:
             self.check_requests_for_dropoff()
 
@@ -33,7 +43,11 @@ class Stack():
                 return True
 
             wait_time = self.calculate_wait()
-            print(f"Waiting {wait_time:.2f} seconds for dropoff")
+            message = f"Rate limited: waiting {wait_time:.2f} seconds"
+            if progress_writer is None:
+                print(message)
+            else:
+                progress_writer(message)
             time.sleep(wait_time)
 
     def check_requests_for_dropoff(self):
@@ -44,7 +58,7 @@ class Stack():
 
         for reqId, pushTime in stack_contents:
             time_on_stack = current_time - pushTime
-            if time_on_stack > self.dropoff_time:
+            if time_on_stack >= self.dropoff_time + SAFETY_BUFFER_SECONDS:
                 self.pop(reqId)
                 changed = True
 
@@ -56,7 +70,10 @@ class Stack():
     
     def calculate_wait(self):
         earliest_time_on_stack = min(self.stack.values())
-        time_to_wait = max(self.dropoff_time - (time.time() - earliest_time_on_stack), 0)
+        time_to_wait = max(
+            self.dropoff_time + SAFETY_BUFFER_SECONDS - (time.time() - earliest_time_on_stack),
+            SAFETY_BUFFER_SECONDS,
+        )
         return time_to_wait
 
     def load(self):
@@ -79,6 +96,7 @@ class Stack():
         state = {
             "timestamps": list(self.stack.values())
         }
+        STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
         STATE_PATH.write_text(json.dumps(state))
 
 _shared_stack = None
@@ -95,8 +113,12 @@ def get_shared_stack(page_limit: int, dropoff_time: int = 60):
 
     return _shared_stack
 
-def wait_for_rate_limit(page_limit: int, dropoff_time:int = 60):
-    get_shared_stack(page_limit, dropoff_time).add()
+def wait_for_rate_limit(
+    page_limit: int,
+    dropoff_time:int = 60,
+    progress_writer: Callable[[str], None] | None = None,
+):
+    get_shared_stack(page_limit, dropoff_time).add(progress_writer=progress_writer)
 
 def save_shared_stack():
     if _shared_stack is not None:

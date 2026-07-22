@@ -1,10 +1,10 @@
 from sqlalchemy import text
 import pandas as pd
-from src.hoophub.crawler.fetch import fetch_response_status_code, read_html
-from src.hoophub.crawler.urls import schedule_url
-from src.hoophub.parsers.schedule import parse_schedule
-from src.hoophub.repository.save import save_to_db
-from src.hoophub.repository.query import query_existing_years_in_table, query_last_year_in_table
+from hoophub.crawler.fetch import fetch_response_status_code, read_html
+from hoophub.crawler.urls import schedule_url
+from hoophub.parsers.schedule import parse_schedule
+from hoophub.repository.save import save_to_db
+from hoophub.repository.query import query_existing_years_in_table, query_last_year_in_table
 
 def get_month_game_schedule(month: str, year: int, page_limit: int) -> pd.DataFrame: 
     url = schedule_url(year, month)

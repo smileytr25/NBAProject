@@ -1,8 +1,8 @@
 import pandas as pd
-from src.hoophub.crawler.fetch import fetch_response_content
-from src.hoophub.crawler.urls import league_page_subsection_url
-from src.hoophub.parsers.all_star import parse_all_star_rosters
-from src.hoophub.repository.save import save_to_db
+from hoophub.crawler.fetch import fetch_response_content
+from hoophub.crawler.urls import league_page_subsection_url
+from hoophub.parsers.all_star import parse_all_star_rosters
+from hoophub.repository.save import save_to_db
 
 def get_year_all_stars(year: int, page_limit: int) -> pd.DataFrame:
     url = league_page_subsection_url(year, "all_star_game_rosters")

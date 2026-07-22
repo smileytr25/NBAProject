@@ -1,5 +1,5 @@
 import pandas as pd 
-from src.hoophub.repository.engine import get_nba_db_engine
+from hoophub.repository.engine import get_nba_db_engine
 
 def save_to_db(data: pd.DataFrame, table: str, if_exists: str):
     engine = get_nba_db_engine()

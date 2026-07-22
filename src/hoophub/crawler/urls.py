@@ -1,5 +1,8 @@
+from string import Template 
+
 base_url = "https://www.basketball-reference.com"
 leagues_base_url = base_url + "/leagues"
+year_team_url = Template("https://www.basketball-reference.com/teams/$abbrev/$year.html")
 
 def get_league(year: int):
     return "NBA" if year >= 1950 else "BAA"
@@ -24,3 +27,6 @@ def schedule_url(year: int, month: str):
 
 def standings_url(year: str):
     return leagues_base_url + f"/{get_league(year)}_{year}_standings.html"
+
+def roster_url(year, abbrev):
+    return year_team_url.substitute(abbrev=abbrev, year=year)

@@ -500,3 +500,6 @@ NBA_AFTER_2004_CONF_MAPPING = {
             ],
         }
     }
+
+DATABASE_NAME = "hoophub"
+PAGE_CACHE_COLLECTION = "page_cache"

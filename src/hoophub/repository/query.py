@@ -1,7 +1,7 @@
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from typing import Any
-from src.hoophub.repository.engine import get_nba_db_engine
+from hoophub.repository.engine import get_nba_db_engine
 
 engine = get_nba_db_engine()
 

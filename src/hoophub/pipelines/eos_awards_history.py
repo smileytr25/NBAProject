@@ -1,8 +1,8 @@
 import pandas as pd 
-from src.hoophub.crawler.fetch import fetch_response_content
-from src.hoophub.crawler.urls import league_page_subsection_url
-from src.hoophub.parsers.eos_awards import parse_eos_awards
-from src.hoophub.repository.save import save_awards_to_db 
+from hoophub.crawler.fetch import fetch_response_content
+from hoophub.crawler.urls import league_page_subsection_url
+from hoophub.parsers.eos_awards import parse_eos_awards
+from hoophub.repository.save import save_awards_to_db 
 
 def get_year_eos_awards(year: int, page_limit: int) -> pd.DataFrame:
     url = league_page_subsection_url(year, "all_awards")

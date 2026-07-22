@@ -1,8 +1,8 @@
 import pandas as pd 
-from src.hoophub.crawler.fetch import read_html
-from src.hoophub.crawler.urls import all_teams_url
-from src.hoophub.parsers.franchises import parse_franchises
-from src.hoophub.repository.save import save_franchises_to_db
+from hoophub.crawler.fetch import read_html
+from hoophub.crawler.urls import all_teams_url
+from hoophub.parsers.franchises import parse_franchises
+from hoophub.repository.save import save_franchises_to_db
 
 def run() -> None:
     url = all_teams_url()

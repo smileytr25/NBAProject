@@ -1,5 +1,5 @@
 import pandas as pd 
-from src.hoophub.parsers.html import get_element_from_comment
+from hoophub.parsers.html import get_element_from_comment
 from io import StringIO
 from bs4 import BeautifulSoup
 
