@@ -329,7 +329,7 @@ def parse_head_to_head(content: bytes, year: int):
 
     return standings_df, pivoted
 
-def get_division_winners(conference_df):
+def get_division_winners(conference_df: pd.DataFrame):
     df = conference_df.copy()
 
     df["division_wp"] = df.apply(
@@ -347,7 +347,17 @@ def get_division_winners(conference_df):
 
     return df[df.division_rank.eq(1)].team.unique().tolist()
 
-def break_ties(n_ties, conference_df, tvt, ties_history, wp, conference_rank, conference, conference_rk, tie_teams=None):
+def break_ties(
+    n_ties: int, 
+    conference_df: pd.DataFrame, 
+    tvt: pd.DataFrame, 
+    ties_history: list[list[str]], 
+    wp: float,
+    conference_rank: dict[dict[str, int]], 
+    conference: str, 
+    conference_rk: str, 
+    tie_teams: list[str] = None
+):
     tie_rows = conference_df[conference_df.win_percentage.eq(wp)]
     
     if not tie_teams: 
@@ -603,7 +613,7 @@ def break_ties(n_ties, conference_df, tvt, ties_history, wp, conference_rank, co
                     else:
                         raise ValueError("MAYDAY MAYDAY!!!")
                         
-def get_conference_rank(expanded_standings, team_vs_team):
+def get_conference_rank(expanded_standings: pd.DataFrame, team_vs_team: pd.DataFrame):
     df = expanded_standings.copy() 
     tvt = team_vs_team.copy() 
 

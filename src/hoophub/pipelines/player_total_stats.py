@@ -5,14 +5,14 @@ from src.hoophub.parsers.player_stats import parse_player_stats
 from src.hoophub.repository.save import save_to_db
 from src.hoophub.repository.query import query_existing_years_in_table, query_last_year_in_table
 
-def get_year_player_total_stats(year, season_type, page_limit):
+def get_year_player_total_stats(year: int, season_type: str, page_limit: int) -> pd.DataFrame:
     url = player_stats_url(year, "totals")
     table_id = "totals_stats" + ("" if season_type == "regular" else "_post")
     df = read_html(url, page_limit=page_limit, attrs={"id" : table_id})[0]
     df = parse_player_stats(df, year)
     return df
 
-def check_for_player_total_stats_to_scrape(season_type, page_limit):
+def check_for_player_total_stats_to_scrape(season_type: str, page_limit: int) -> list[int]:
     table_name = "player_total_stats"
     if season_type == "playoffs":
         table_name += "_playoffs"
@@ -27,7 +27,7 @@ def check_for_player_total_stats_to_scrape(season_type, page_limit):
     
     return list(range(start_of_new_years, next_year_to_check))
 
-def get_player_total_stats_not_already_existing(season_type, years):
+def get_player_total_stats_not_already_existing(season_type: str, years: list[int]) -> list[int]:
     table_name = "player_total_stats"
     if season_type == "playoffs":
         table_name += "_playoffs"
@@ -35,7 +35,7 @@ def get_player_total_stats_not_already_existing(season_type, years):
     years_existing = query_existing_years_in_table(table_name, "Year")
     return [year for year in years if year not in years_existing]
 
-def get_selected_years_player_total_stats(years, page_limit, season_type):
+def get_selected_years_player_total_stats(years: list[int], page_limit: int, season_type: str) -> pd.DataFrame:
     stats = []
     for year in years: 
         year_df = get_year_player_total_stats(year, season_type, page_limit)
@@ -43,7 +43,7 @@ def get_selected_years_player_total_stats(years, page_limit, season_type):
         print(f"Player {season_type} total stats added for year: {year}")
     return pd.concat(stats, axis=0, ignore_index=True) if stats else pd.DataFrame()
 
-def run(years, page_limit):
+def run(years: list[int], page_limit: int) -> None:
     requested_years = years 
 
     for season_type in ["regular", "playoffs"]:

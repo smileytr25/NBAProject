@@ -1,4 +1,4 @@
-from src.hoophub.utils.database import get_nba_db_engine
+from src.hoophub.repository.engine import get_nba_db_engine
 import pandas as pd 
 
 def parse_coaches(raw_df: pd.DataFrame, year: int) -> pd.DataFrame:

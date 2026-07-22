@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup, Comment 
-
-def get_element_from_comment(soup, wrapper_id, element_type, element_id):
+import bs4 
+def get_element_from_comment(soup: BeautifulSoup, wrapper_id: str, element_type: str, element_id: str) -> bs4.element.tag | None:
     wrapper = soup.find("div", id=wrapper_id)
     
     element_comment = wrapper.find(

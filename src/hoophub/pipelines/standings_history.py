@@ -11,44 +11,45 @@ from src.hoophub.parsers.standings import (
 )
 from src.hoophub.repository.save import save_standings_to_db
 from src.hoophub.repository.query import query_existing_years_in_table
+import pandas as pd 
 
-def get_BAA_year_expanded_standings(year, page_limit):
+def get_BAA_year_expanded_standings(year: int, page_limit: int) -> pd.DataFrame:
     url = standings_url(year)
     content = fetch_response_content(url, page_limit=page_limit)
     standings_df = parse_BAA_standings(content, year)
     return standings_df
 
-def get_NBA1950_year_expanded_standings(year, page_limit):
+def get_NBA1950_year_expanded_standings(year: int, page_limit: int) -> pd.DataFrame:
     url = standings_url(year)
     content = fetch_response_content(url, page_limit=page_limit)
     standings_df  = parse_NBA1950_standings(content, year)
     return standings_df
 
-def get_NBA1951_1970_year_expanded_standings(year, page_limit):
+def get_NBA1951_1970_year_expanded_standings(year: int, page_limit: int) -> pd.DataFrame:
     url = standings_url(year)
     content = fetch_response_content(url, page_limit=page_limit)
     standings_df = parse_NBA1951_1970_standings(content, year)
     return standings_df
 
-def get_NBA1971_2004_year_expanded_standings(year, page_limit):
+def get_NBA1971_2004_year_expanded_standings(year: int, page_limit: int) -> pd.DataFrame:
     url = standings_url(year)
     content = fetch_response_content(url, page_limit=page_limit)
     standings_df = parse_NBA1971_2004_standings(content, year)
     return standings_df
 
-def get_NBA_after_2004_year_expanded_standings(year, page_limit):
+def get_NBA_after_2004_year_expanded_standings(year: int, page_limit: int) -> pd.DataFrame:
     url = standings_url(year)
     content = fetch_response_content(url, page_limit=page_limit)
     standings_df = parse_NBA_after_2004_standings(content, year)
     return standings_df 
 
-def get_year_team_vs_team(year, page_limit):
+def get_year_team_vs_team(year: int, page_limit: int) -> pd.DataFrame:
     url = standings_url(year)
     content = fetch_response_content(url, page_limit=page_limit) 
     standings_df, pivoted = parse_head_to_head(content, year)
     return standings_df, pivoted
 
-def get_year_standings(year, page_limit):    
+def get_year_standings(year: int, page_limit: int) -> tuple[pd.DataFrame]:    
     expanded_standings = None
     if year < 1950:
         expanded_standings = get_BAA_year_expanded_standings(year, page_limit)
@@ -66,7 +67,7 @@ def get_year_standings(year, page_limit):
     print(f"Added standings history for {year}")
     return expanded_standings, pivoted_team_vs_team
 
-def get_standings_not_already_existing(years):
+def get_standings_not_already_existing(years: list[int]) -> list[int]:
     years_existing = []
     tables = [
         "standings_history_after_2004",
@@ -80,7 +81,7 @@ def get_standings_not_already_existing(years):
 
     return [year for year in years if year not in years_existing]
 
-def run(years, page_limit):
+def run(years: list[int], page_limit: int) -> None:
     years = get_standings_not_already_existing(years)
     if years:
         for year in years:

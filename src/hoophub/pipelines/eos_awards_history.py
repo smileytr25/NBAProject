@@ -4,12 +4,12 @@ from src.hoophub.crawler.urls import league_page_subsection_url
 from src.hoophub.parsers.eos_awards import parse_eos_awards
 from src.hoophub.repository.save import save_awards_to_db 
 
-def get_year_eos_awards(year, page_limit):
+def get_year_eos_awards(year: int, page_limit: int) -> pd.DataFrame:
     url = league_page_subsection_url(year, "all_awards")
     content = fetch_response_content(url, page_limit=page_limit)
     return parse_eos_awards(content, year)
 
-def get_selected_years_eos_awards(years, page_limit):
+def get_selected_years_eos_awards(years: list[int], page_limit: int) -> list[pd.DataFrame]:
     league_awards = []
     all_nba = []
     all_defensive = [] 
@@ -33,7 +33,7 @@ def get_selected_years_eos_awards(years, page_limit):
 
     return league_awards, all_nba, all_defensive, all_rookie, all_tourney
 
-def run(years, page_limit):
+def run(years: list[int], page_limit: int) -> None:
     if years:
         print(f"Getting end of season awards history for years: {', '.join([str(i) for i in years])}")
         league_awards_df, alL_nba_df, all_defensive_df, all_rookie_df, all_tourney_df = get_selected_years_eos_awards(years, page_limit)

@@ -4,18 +4,20 @@ import signal
 import time
 import uuid 
 from pathlib import Path
+from types import FrameType
+from typing import Optional
 
 STATE_PATH = Path(".crawler_rate_limit.json")
 
 
 class Stack():
-    def __init__(self, page_limit, dropoff_time):
+    def __init__(self, page_limit: int, dropoff_time: int):
         self.capacity = page_limit 
         self.dropoff_time = dropoff_time
         self.stack = {}
         self.load()
 
-    def pop(self, reqId):
+    def pop(self, reqId: uuid.UUID):
         del self.stack[reqId]
         
     def size(self):
@@ -81,8 +83,7 @@ class Stack():
 
 _shared_stack = None
 
-
-def get_shared_stack(page_limit, dropoff_time=60):
+def get_shared_stack(page_limit: int, dropoff_time: int = 60):
     global _shared_stack
 
     if (
@@ -94,20 +95,16 @@ def get_shared_stack(page_limit, dropoff_time=60):
 
     return _shared_stack
 
-
-def wait_for_rate_limit(page_limit, dropoff_time=60):
+def wait_for_rate_limit(page_limit: int, dropoff_time:int = 60):
     get_shared_stack(page_limit, dropoff_time).add()
-
 
 def save_shared_stack():
     if _shared_stack is not None:
         _shared_stack.save()
 
-
-def handle_exit(signum, frame):
+def handle_exit(signum: int, frame: Optional[FrameType]) -> None:
     save_shared_stack()
     raise KeyboardInterrupt
-
 
 atexit.register(save_shared_stack)
 signal.signal(signal.SIGINT, handle_exit)

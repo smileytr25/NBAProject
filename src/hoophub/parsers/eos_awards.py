@@ -18,7 +18,9 @@ def parse_league_awards(soup: bytes, year: int) -> pd.DataFrame:
         data["player"].append(row["Winner"])
         data["accolade"].append(row["Award"])
 
-    return pd.DataFrame(data)
+    df = pd.DataFrame(data)
+    df["Year"] = year
+    return df
 
 def parse_all_nba(soup: bytes, year: int) -> pd.DataFrame:
     if not soup.find("div", id="all_all-nba"):
@@ -125,10 +127,10 @@ def parse_all_tournament(soup: bytes, year: int) -> pd.DataFrame:
 def parse_eos_awards(content: bytes, year: int) -> pd.DataFrame:
     soup = BeautifulSoup(content, "html.parser")
     
-    league_awards = parse_league_awards(soup)
-    all_nba = parse_all_nba(soup)
-    all_defensive = parse_all_defensive(soup)
-    all_rookie = parse_all_rookie(soup)
-    all_tourney = parse_all_tournament(soup)
+    league_awards = parse_league_awards(soup, year)
+    all_nba = parse_all_nba(soup, year)
+    all_defensive = parse_all_defensive(soup, year)
+    all_rookie = parse_all_rookie(soup, year)
+    all_tourney = parse_all_tournament(soup, year)
 
     return league_awards, all_nba, all_defensive, all_rookie, all_tourney
